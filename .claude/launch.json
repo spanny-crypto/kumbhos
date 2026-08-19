@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "kumbhos-dev",
+      "runtimeExecutable": "C:\\Users\\Admin\\Documents\\kumbhthon\\scripts\\dev.cmd",
+      "runtimeArgs": [],
+      "port": 3000
+    }
+  ]
+}

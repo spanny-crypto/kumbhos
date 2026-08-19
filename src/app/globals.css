@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Default surface is the light "paper" theme used by the public portal.
+   Dark-themed sections (Command Centre, Login, Live Billboard) set their
+   own background explicitly on a wrapping element. */
+html, body {
+  background-color: #f6f7f9;
+  color: #171a1f;
+}
+
+::selection {
+  background-color: rgba(249, 115, 22, 0.25);
+}
+
+.maplibregl-ctrl-attrib {
+  font-size: 10px !important;
+}
+
+/* Dark "terminal" card — Command Centre, Login, Live Billboard */
+.card {
+  @apply rounded-lg border border-ink-700 bg-ink-800/60 backdrop-blur-sm;
+}
+
+.badge {
+  @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
+}
+
+/* Light "paper" card — public portal shell */
+.paper-card {
+  @apply rounded-xl border border-paper-border bg-paper-surface shadow-sm;
+}
+
+.pill {
+  @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #2b3648;
+  border-radius: 3px;
+}
+.paper-card ::-webkit-scrollbar-thumb {
+  background-color: #d7dae0;
+}
+
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-ticker {
+  animation: ticker-scroll 40s linear infinite;
+}
+
+@keyframes blink-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+.animate-blink {
+  animation: blink-dot 1.4s ease-in-out infinite;
+}
