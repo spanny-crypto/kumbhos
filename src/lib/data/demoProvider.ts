@@ -15,6 +15,7 @@ import type {
   Zone
 } from './types';
 import type { CreateIncidentInput, CreateLostFoundInput, DataProvider } from './provider';
+import { lostFoundBackup } from './lostFoundBackup';
 import {
   generateAnnouncements,
   generateDataSources,
@@ -202,10 +203,19 @@ export class DemoDataProvider implements DataProvider {
     return delay(state.volunteers);
   }
 
+  // Lost & Found is the one feature backed by real Supabase storage when
+  // configured (src/lib/data/lostFoundBackup.ts) — every write and read
+  // tries Supabase first and only falls back to the in-memory demo array
+  // if Supabase isn't configured or a call fails, so a network hiccup
+  // during a demo degrades gracefully instead of crashing the page.
   async getLostFoundCases() {
+    const remote = await lostFoundBackup.list();
+    if (remote) return remote;
     return delay(state.lostFound);
   }
   async createLostFoundCase(input: CreateLostFoundInput) {
+    const remote = await lostFoundBackup.create(input);
+    if (remote) return remote;
     const item: LostFoundCase = {
       id: `case-${Date.now()}`,
       type: input.type,
@@ -220,6 +230,9 @@ export class DemoDataProvider implements DataProvider {
     return delay(item);
   }
   async updateLostFoundStatus(id: string, status: LostFoundCase['status']) {
+    if (lostFoundBackup.isConfigured()) {
+      return lostFoundBackup.updateStatus(id, status);
+    }
     const idx = state.lostFound.findIndex((c) => c.id === id);
     if (idx === -1) return delay(null);
     const updated: LostFoundCase = { ...state.lostFound[idx]!, status };

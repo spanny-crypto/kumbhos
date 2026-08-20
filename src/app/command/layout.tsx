@@ -14,7 +14,10 @@ export default function CommandLayout({ children }: { children: React.ReactNode 
   return (
     <div className="flex min-h-screen bg-ink-950">
       <CommandSidebar name={session.name} role={session.role} />
-      <div className="min-w-0 flex-1 overflow-y-auto">{children}</div>
+      <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">
+        <div className="flex-1">{children}</div>
+        <footer className="border-t border-ink-700 px-4 py-3 text-center text-xs font-bold text-ink-100">A SPANDAN PARAKH PRODUCTION</footer>
+      </div>
     </div>
   );
 }

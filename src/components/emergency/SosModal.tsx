@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { AlertTriangle, Phone, Ambulance, MapPin, X, ExternalLink } from 'lucide-react';
 import { useLanguage } from '@/components/layout/LanguageProvider';
+import { useLocation } from '@/components/layout/LocationProvider';
 
 type ShareState = 'idle' | 'sharing' | 'shared' | 'copied' | 'denied' | 'unavailable' | 'timeout' | 'unsupported';
 
@@ -25,6 +26,7 @@ function googleMapsUrl(lat: number, lng: number): string {
 
 export function SosModal({ onClose }: { onClose: () => void }) {
   const { t } = useLanguage();
+  const location = useLocation();
   const [shareState, setShareState] = useState<ShareState>('idle');
   const [mapsUrl, setMapsUrl] = useState<string | null>(null);
   const [errorDetail, setErrorDetail] = useState<string | null>(null);
@@ -37,6 +39,13 @@ export function SosModal({ onClose }: { onClose: () => void }) {
     if (typeof window !== 'undefined' && window.isSecureContext === false) {
       setShareState('unavailable');
       setErrorDetail('This page must be served over HTTPS (or localhost) for location access to work.');
+      return;
+    }
+    if (location.permissionState === 'denied') {
+      // Persisted browser-level block — getCurrentPosition would fail
+      // instantly with no prompt at all. Skip straight to the fix.
+      setShareState('denied');
+      setErrorDetail('Location is set to "Block" for this site — it will not prompt again until reset manually.');
       return;
     }
     setShareState('sharing');
@@ -117,7 +126,12 @@ export function SosModal({ onClose }: { onClose: () => void }) {
                   Location Services.
                 </p>
               )}
-              {shareState === 'denied' && <p className="mt-1">Allow location for this site via the lock icon in your address bar, then try again.</p>}
+              {shareState === 'denied' && (
+                <p className="mt-1">
+                  Click the 🔒 icon in your address bar → Site settings → Location → Allow (Chrome/Edge), or Settings → Site settings → Location on this site
+                  (Chrome Android), then try again. It won&apos;t prompt again on its own once blocked.
+                </p>
+              )}
             </div>
           )}
           {mapsUrl && (

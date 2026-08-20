@@ -72,6 +72,8 @@ function LoginForm() {
             ))}
           </ul>
         </details>
+
+        <p className="mt-6 text-center text-sm font-bold text-ink-100">A SPANDAN PARAKH PRODUCTION</p>
       </div>
     </div>
   );

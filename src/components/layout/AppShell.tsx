@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -48,7 +48,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [sosOpen, setSosOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [locationBannerDismissed, setLocationBannerDismissed] = useState(false);
-  const locationHasProblem = ['denied', 'unavailable', 'timeout', 'unsupported', 'insecure'].includes(location.status);
+  const [origin, setOrigin] = useState('');
+  useEffect(() => setOrigin(window.location.origin), []);
+
+  // A persisted browser-level "Block" is detectable via the Permissions API
+  // even before the user clicks anything — surface it proactively instead
+  // of waiting for a click that we already know will fail silently.
+  const persistedlyBlocked = location.status === 'idle' && location.permissionState === 'denied';
+  const locationHasProblem = ['denied', 'unavailable', 'timeout', 'unsupported', 'insecure'].includes(location.status) || persistedlyBlocked;
 
   function requestLocation() {
     setLocationBannerDismissed(false);
@@ -113,7 +120,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               className={`hidden items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition sm:flex ${
                 location.status === 'granted'
                   ? 'border-risk-normal/40 bg-risk-normal/10 text-risk-normal'
-                  : location.status === 'denied' || location.status === 'unavailable' || location.status === 'timeout' || location.status === 'insecure'
+                  : locationHasProblem
                     ? 'border-risk-critical/40 bg-risk-critical/5 text-risk-critical'
                     : 'border-paper-border text-paper-muted hover:bg-paper-bg'
               }`}
@@ -123,15 +130,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 ? t('trackingOn')
                 : location.status === 'requesting'
                   ? 'Requesting…'
-                  : location.status === 'denied'
-                    ? 'Permission denied'
-                    : location.status === 'unavailable'
-                      ? 'Location unavailable'
-                      : location.status === 'timeout'
-                        ? 'Timed out — retry'
-                        : location.status === 'insecure'
-                          ? 'Needs HTTPS'
-                          : t('enableTracking')}
+                  : persistedlyBlocked
+                    ? 'Blocked — tap for fix'
+                    : location.status === 'denied'
+                      ? 'Permission denied'
+                      : location.status === 'unavailable'
+                        ? 'Location unavailable'
+                        : location.status === 'timeout'
+                          ? 'Timed out — retry'
+                          : location.status === 'insecure'
+                            ? 'Needs HTTPS'
+                            : t('enableTracking')}
             </button>
             <button
               onClick={toggle}
@@ -153,23 +162,44 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {locationHasProblem && !locationBannerDismissed && (
           <div className="flex flex-wrap items-start gap-2 border-b border-risk-critical/30 bg-risk-critical/5 px-4 py-2.5 text-xs text-paper-text">
             <ShieldAlert size={15} className="mt-0.5 shrink-0 text-risk-critical" />
-            <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1 space-y-1.5">
               <p className="font-semibold text-risk-critical">
-                {location.status === 'denied' && 'Location permission was denied.'}
-                {location.status === 'unavailable' && "Your device/browser couldn't determine a location."}
-                {location.status === 'timeout' && 'Location request timed out.'}
-                {location.status === 'unsupported' && 'Geolocation is not supported here.'}
-                {location.status === 'insecure' && 'This page needs HTTPS for location to work.'}
+                {persistedlyBlocked && 'Location is blocked for this site — your browser remembers a past "Block" and will not ask again.'}
+                {!persistedlyBlocked && location.status === 'denied' && 'Location permission was denied.'}
+                {!persistedlyBlocked && location.status === 'unavailable' && "Your device/browser couldn't determine a location."}
+                {!persistedlyBlocked && location.status === 'timeout' && 'Location request timed out.'}
+                {!persistedlyBlocked && location.status === 'unsupported' && 'Geolocation is not supported here.'}
+                {!persistedlyBlocked && location.status === 'insecure' && 'This page needs HTTPS for location to work.'}
               </p>
-              {location.errorDetail && <p className="mt-0.5 text-paper-muted">Browser said: “{location.errorDetail}”</p>}
-              {location.status === 'unavailable' && (
-                <p className="mt-0.5 text-paper-muted">
+              {location.errorDetail && <p className="text-paper-muted">Browser said: “{location.errorDetail}”</p>}
+
+              {(persistedlyBlocked || location.status === 'denied') && (
+                <div className="text-paper-muted">
+                  <p>
+                    Reset it for <code className="rounded bg-black/5 px-1 py-0.5">{origin || 'this site'}</code>:
+                  </p>
+                  <ul className="mt-1 list-disc space-y-0.5 pl-4">
+                    <li>
+                      <strong>Chrome / Edge (desktop):</strong> click the 🔒 or ⓘ icon left of the address bar → Site settings (or Permissions) → Location → change
+                      "Block" to "Ask" or "Allow" → reload this page.
+                    </li>
+                    <li>
+                      <strong>Chrome (Android):</strong> tap ⋮ → Settings → Site settings → Location → find this site → change to Allow.
+                    </li>
+                    <li>
+                      <strong>Safari (iOS):</strong> Settings app → Safari → Location, or Settings → Privacy &amp; Security → Location Services → Safari Websites.
+                    </li>
+                    <li>
+                      <strong>Firefox:</strong> click the 🔒 icon → Clear permission next to Location, then retry.
+                    </li>
+                  </ul>
+                </div>
+              )}
+              {!persistedlyBlocked && location.status === 'unavailable' && (
+                <p className="text-paper-muted">
                   Most common cause: your operating system's location service is turned off. On Windows: Settings → Privacy &amp; security → Location → turn it on, and
                   allow desktop apps (including your browser) to use it. On macOS: System Settings → Privacy &amp; Security → Location Services.
                 </p>
-              )}
-              {location.status === 'denied' && (
-                <p className="mt-0.5 text-paper-muted">Click the lock/site-info icon in your address bar → Site settings → Location → Allow, then retry.</p>
               )}
             </div>
             <button onClick={requestLocation} className="shrink-0 rounded-md border border-paper-border bg-paper-surface px-2.5 py-1 text-xs font-medium hover:bg-paper-bg">
@@ -205,10 +235,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <main className="flex-1">{children}</main>
 
         <footer className="border-t border-paper-border px-4 py-5 text-center text-xs text-paper-faint">
-          KumbhOS Prototype · Demo/simulation data unless otherwise labeled · Not affiliated with any government authority ·{' '}
-          <Link href="/data-sources" className="underline hover:text-paper-muted">
-            Data sources
-          </Link>
+          <p>
+            KumbhOS Prototype · Demo/simulation data unless otherwise labeled · Not affiliated with any government authority ·{' '}
+            <Link href="/data-sources" className="underline hover:text-paper-muted">
+              Data sources
+            </Link>
+          </p>
+          <p className="mt-1.5 text-sm font-bold text-paper-text">A SPANDAN PARAKH PRODUCTION</p>
         </footer>
       </div>
 

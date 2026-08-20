@@ -1,14 +1,24 @@
 'use client';
 
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 export type LocationStatus = 'idle' | 'requesting' | 'granted' | 'denied' | 'unavailable' | 'timeout' | 'unsupported' | 'insecure';
+export type PermissionState = 'granted' | 'denied' | 'prompt' | 'unknown';
 
 interface LocationContextValue {
   status: LocationStatus;
   coords: { lat: number; lng: number } | null;
   /** Raw message text from the browser, when available — the actual reason, not our guess at one. */
   errorDetail: string | null;
+  /**
+   * The browser's own stored permission decision for this origin, read via
+   * the Permissions API *before* we ever call getCurrentPosition. If this
+   * is already 'denied', the browser will silently fail every future call
+   * with no prompt at all — that's a persisted "Block" from a previous
+   * visit, not something a retry can fix. Distinguishing this from a
+   * fresh, unprompted state is the whole point of this field.
+   */
+  permissionState: PermissionState;
   request: () => void;
 }
 
@@ -23,18 +33,42 @@ const LocationContext = createContext<LocationContextValue | null>(null);
  * own; nothing in this file makes a network request. See docs/SECURITY.md
  * and docs/TROUBLESHOOTING.md ("Location / Enable live tracking").
  *
- * The most common real-world cause of "unavailable" is NOT a bug in this
- * app — it's the operating system's location service being turned off
- * (e.g. Windows Settings > Privacy & security > Location, or macOS System
- * Settings > Privacy & Security > Location Services), which Chrome/Edge
- * depend on. The browser grants the *permission* but still can't produce a
- * fix without an OS-level location provider. We surface the browser's own
- * error message text below so this is diagnosable instead of guessed at.
+ * Two distinct failure modes get conflated by users as "it doesn't work,"
+ * so this module tells them apart explicitly:
+ *  1. Browser-level permission is set to "Block" for this origin (often
+ *     from an earlier visit) — Chrome will NOT show a prompt again and
+ *     will fail instantly and silently every time. Only a manual reset in
+ *     the browser's site settings fixes this; no retry from the page can.
+ *  2. Permission is granted/not-yet-decided, but the OS itself has no
+ *     location fix to give (Windows Location Services off, no GPS/Wi-Fi
+ *     positioning available, etc.) — this shows up as POSITION_UNAVAILABLE
+ *     even though the permission prompt succeeded.
  */
 export function LocationProvider({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<LocationStatus>('idle');
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [errorDetail, setErrorDetail] = useState<string | null>(null);
+  const [permissionState, setPermissionState] = useState<PermissionState>('unknown');
+
+  useEffect(() => {
+    if (typeof navigator === 'undefined' || !navigator.permissions?.query) return;
+    let permissionStatus: PermissionStatus | null = null;
+    navigator.permissions
+      .query({ name: 'geolocation' })
+      .then((result) => {
+        permissionStatus = result;
+        setPermissionState(result.state as PermissionState);
+        result.addEventListener('change', () => setPermissionState(result.state as PermissionState));
+      })
+      .catch(() => setPermissionState('unknown'));
+    return () => {
+      // No explicit removeEventListener call needed — the PermissionStatus
+      // object is garbage collected with this effect's closure once the
+      // provider unmounts (which in practice never happens for a root
+      // layout provider), but referencing it silences unused-var lint.
+      void permissionStatus;
+    };
+  }, []);
 
   const request = useCallback(() => {
     if (typeof navigator === 'undefined' || !navigator.geolocation) {
@@ -48,6 +82,14 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
       // deployment/URL issue, not something fixable from inside the page.
       setStatus('insecure');
       setErrorDetail('This page must be served over HTTPS (or localhost) for location access to work.');
+      return;
+    }
+    if (permissionState === 'denied') {
+      // Calling getCurrentPosition here would just fail instantly with no
+      // browser UI at all — skip straight to the actionable message
+      // instead of pretending we're "requesting."
+      setStatus('denied');
+      setErrorDetail('Location is set to "Block" for this site in your browser — it will not prompt again until you reset it manually.');
       return;
     }
     setStatus('requesting');
@@ -66,9 +108,9 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
-  }, []);
+  }, [permissionState]);
 
-  const value = useMemo(() => ({ status, coords, errorDetail, request }), [status, coords, errorDetail, request]);
+  const value = useMemo(() => ({ status, coords, errorDetail, permissionState, request }), [status, coords, errorDetail, permissionState, request]);
   return <LocationContext.Provider value={value}>{children}</LocationContext.Provider>;
 }
 
