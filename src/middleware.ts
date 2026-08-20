@@ -16,7 +16,9 @@ export function middleware(req: NextRequest) {
   if (!hasCookie) {
     const loginUrl = new URL('/login', req.url);
     loginUrl.searchParams.set('next', req.nextUrl.pathname);
-    return NextResponse.redirect(loginUrl);
+    const redirectRes = NextResponse.redirect(loginUrl);
+    redirectRes.headers.set('X-Robots-Tag', 'noindex, nofollow');
+    return redirectRes;
   }
   return res;
 }

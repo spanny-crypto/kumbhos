@@ -3,9 +3,31 @@
 // client bundles by construction and gives us one place to reason about
 // what's configured vs. missing.
 
+import { randomBytes } from 'crypto';
+
 function readServer(name: string): string | undefined {
   const value = process.env[name];
   return value && value.trim().length > 0 ? value.trim() : undefined;
+}
+
+// A hardcoded fallback secret would be visible to anyone who reads this
+// (public) source code and could be used to forge a signed session cookie
+// for any role, including SUPER_ADMIN — that actually happened once during
+// this project's deployment before AUTH_SESSION_SECRET was set on the host.
+// If the real env var is missing, generate a random one instead: still
+// zero-config for local dev, but never a publicly-known value. The only
+// cost is that sessions won't survive a server restart if this fallback
+// path is ever hit — a much better failure mode than a guessable secret.
+let generatedFallbackSecret: string | null = null;
+function fallbackSessionSecret(): string {
+  if (!generatedFallbackSecret) {
+    generatedFallbackSecret = randomBytes(32).toString('base64url');
+    console.warn(
+      '[KumbhOS] AUTH_SESSION_SECRET is not set — generated a random one for this server process. ' +
+        'Set AUTH_SESSION_SECRET in your deployment environment so sessions survive restarts.'
+    );
+  }
+  return generatedFallbackSecret;
 }
 
 export const env = {
@@ -37,7 +59,7 @@ export const env = {
 
   auth: {
     get sessionSecret() {
-      return readServer('AUTH_SESSION_SECRET') ?? 'insecure-dev-only-secret-change-me';
+      return readServer('AUTH_SESSION_SECRET') ?? fallbackSessionSecret();
     }
   }
 };
