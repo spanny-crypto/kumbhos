@@ -19,7 +19,7 @@ export default function EmergencyPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-6">
-      <h1 className="text-xl font-bold text-paper-text">{t('pageEmergencyTitle')}</h1>
+      <h1 className="heading-serif text-3xl text-paper-text">{t('pageEmergencyTitle')}</h1>
       <div className="mt-3 rounded-lg border border-risk-critical/30 bg-risk-critical/5 p-4 text-sm text-paper-text">
         <strong>This is a prototype.</strong> KumbhOS is not connected to real emergency services (police, ambulance, fire, 112).
         In a genuine emergency, contact local authorities directly. This page demonstrates how an operational

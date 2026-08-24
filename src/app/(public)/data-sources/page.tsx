@@ -19,7 +19,7 @@ export default function DataSourcesPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6">
-      <h1 className="text-xl font-bold text-paper-text">{t('pageDataSourcesTitle')}</h1>
+      <h1 className="heading-serif text-3xl text-paper-text">{t('pageDataSourcesTitle')}</h1>
       <p className="mt-1 text-sm text-paper-muted">{t('pageDataSourcesSubtitle')}</p>
 
       <AsyncState status={api.status} errorMessage={api.errorMessage} onRetry={api.retry}>

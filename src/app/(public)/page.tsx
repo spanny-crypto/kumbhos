@@ -27,7 +27,7 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
-      <h1 className="text-2xl font-bold text-paper-text">{t('dashboardTitle')}</h1>
+      <h1 className="heading-serif text-4xl text-paper-text">{t('dashboardTitle')}</h1>
       <p className="mt-1 text-sm text-paper-muted">{t('dashboardSubtitle')}</p>
 
       <AsyncState status={summaryApi.status} errorMessage={summaryApi.errorMessage} onRetry={summaryApi.retry} loadingLabel="Loading dashboard…">

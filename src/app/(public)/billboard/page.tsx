@@ -25,13 +25,13 @@ export default function BillboardPage() {
   const problems = (api.data ?? []).filter((e) => e.severity === 'CRITICAL' || e.severity === 'WARNING');
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-[#fbfaf6]">
-      <div className="flex items-center justify-between border-b border-neutral-200 px-4 py-2.5">
+    <div className="min-h-[calc(100vh-4rem)] bg-paper-bg">
+      <div className="flex items-center justify-between border-b border-paper-border px-4 py-2.5">
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 animate-blink rounded-full bg-red-600" />
-          <span className="text-xs font-bold uppercase tracking-widest text-neutral-500">Live Billboard</span>
+          <span className="h-2 w-2 animate-blink rounded-full bg-risk-intervention" />
+          <span className="text-xs font-bold uppercase tracking-widest text-paper-muted">Live Billboard</span>
         </div>
-        <span className="text-xs text-neutral-400">{now ? now.toLocaleTimeString('en-IN', { hour12: false }) : '--:--:--'}</span>
+        <span className="text-xs text-paper-faint">{now ? now.toLocaleTimeString('en-IN', { hour12: false }) : '--:--:--'}</span>
       </div>
 
       <AsyncState status={api.status} errorMessage={api.errorMessage} onRetry={api.retry} emptyMessage="No active situations.">

@@ -99,7 +99,7 @@ export function SosModal({ onClose }: { onClose: () => void }) {
         <div className="space-y-2.5">
           <a
             href="tel:112"
-            className="flex items-center justify-center gap-2 rounded-lg bg-brand-500 py-3 text-sm font-semibold text-white transition hover:bg-brand-600"
+            className="fast-transition flex items-center justify-center gap-2 rounded-lg bg-brand-200 py-3 text-sm font-semibold text-paper-text hover:bg-brand-300"
           >
             <Phone size={16} /> {t('sosCallPolice')}
           </a>

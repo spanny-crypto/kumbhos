@@ -34,7 +34,7 @@ export default function CrowdPage() {
     <div className="mx-auto max-w-4xl px-4 py-6">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-paper-text">{t('pageCrowdTitle')}</h1>
+          <h1 className="heading-serif text-3xl text-paper-text">{t('pageCrowdTitle')}</h1>
           <p className="text-sm text-paper-muted">{t('pageCrowdSubtitle')}</p>
         </div>
         <DemoDataBadge />

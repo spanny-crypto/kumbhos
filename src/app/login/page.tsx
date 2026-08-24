@@ -33,47 +33,56 @@ function LoginForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-ink-950 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-paper-bg px-4">
       <div className="w-full max-w-sm">
         <div className="mb-6 text-center">
-          <Link href="/" className="text-lg font-bold text-ink-50">
+          <Link href="/" className="heading-serif text-2xl text-paper-text">
             KumbhOS
           </Link>
-          <p className="mt-1 text-sm text-ink-400">Command Centre sign-in</p>
+          <p className="mt-1 text-sm text-paper-muted">Command Centre sign-in</p>
         </div>
-        <form onSubmit={handleSubmit} className="card space-y-3 p-5">
-          <label className="block text-sm text-ink-300">
+        <form onSubmit={handleSubmit} className="paper-card space-y-3 p-5">
+          <label className="block text-sm text-paper-muted">
             Username
-            <input value={username} onChange={(e) => setUsername(e.target.value)} required className="mt-1 block w-full rounded-md border border-ink-600 bg-ink-900 px-3 py-2 text-sm text-ink-100" />
+            <input
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              className="mt-1 block w-full rounded-lg border border-paper-border bg-paper-bg px-3 py-2 text-sm text-paper-text"
+            />
           </label>
-          <label className="block text-sm text-ink-300">
+          <label className="block text-sm text-paper-muted">
             Password
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="mt-1 block w-full rounded-md border border-ink-600 bg-ink-900 px-3 py-2 text-sm text-ink-100"
+              className="mt-1 block w-full rounded-lg border border-paper-border bg-paper-bg px-3 py-2 text-sm text-paper-text"
             />
           </label>
           {status === 'error' && <p className="text-sm text-risk-critical">{errorMessage}</p>}
-          <button type="submit" disabled={status === 'submitting'} className="w-full rounded-md bg-accent px-4 py-2 text-sm font-semibold text-white transition hover:bg-accent-light disabled:opacity-50">
+          <button
+            type="submit"
+            disabled={status === 'submitting'}
+            className="fast-transition w-full rounded-lg bg-brand-200 px-4 py-2 text-sm font-semibold text-paper-text hover:bg-brand-300 disabled:opacity-50"
+          >
             {status === 'submitting' ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
 
-        <details className="mt-4 rounded-lg border border-ink-700 bg-ink-900 p-3 text-xs text-ink-400">
-          <summary className="cursor-pointer select-none text-ink-300">Demo credentials</summary>
+        <details className="mt-4 rounded-xl border border-paper-border bg-paper-surface p-3 text-xs text-paper-muted">
+          <summary className="cursor-pointer select-none text-paper-text">Demo credentials</summary>
           <ul className="mt-2 space-y-1">
             {DEMO_ACCOUNTS.map((a) => (
               <li key={a.username}>
-                <code className="text-ink-200">{a.username}</code> / <code className="text-ink-200">{a.password}</code> — {a.role.replace('_', ' ')}
+                <code className="text-paper-text">{a.username}</code> / <code className="text-paper-text">{a.password}</code> — {a.role.replace('_', ' ')}
               </li>
             ))}
           </ul>
         </details>
 
-        <p className="mt-6 text-center text-sm font-bold text-ink-100">A SPANDAN PARAKH PRODUCTION</p>
+        <p className="mt-6 text-center text-sm font-bold text-paper-text">A SPANDAN PARAKH PRODUCTION</p>
       </div>
     </div>
   );

@@ -2,23 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Default surface is the light "paper" theme used by the public portal.
-   Dark-themed sections (Command Centre, Login, Live Billboard) set their
-   own background explicitly on a wrapping element. */
+/* Default surface is the warm cream "paper" theme used by the public
+   portal — modeled on wisprflow.ai (cream bg, near-black ink, serif
+   headings). Dark-themed sections (Command Centre) set their own
+   background explicitly on a wrapping element. */
 html, body {
-  background-color: #f6f7f9;
-  color: #171a1f;
+  background-color: #fffdec;
+  color: #1a1a1a;
 }
 
 ::selection {
-  background-color: rgba(249, 115, 22, 0.25);
+  background-color: rgba(240, 215, 255, 0.6);
 }
 
 .maplibregl-ctrl-attrib {
   font-size: 10px !important;
 }
 
-/* Dark "terminal" card — Command Centre, Login, Live Billboard */
+/* Dark "terminal" card — Command Centre only now */
 .card {
   @apply rounded-lg border border-ink-700 bg-ink-800/60 backdrop-blur-sm;
 }
@@ -27,13 +28,23 @@ html, body {
   @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
 }
 
-/* Light "paper" card — public portal shell */
+/* Light "paper" card — public portal shell. Shadow is intentionally barely
+   visible (matching the reference site's 1px 1px 3px @ 10% opacity) rather
+   than a typical heavy SaaS drop-shadow. */
 .paper-card {
-  @apply rounded-xl border border-paper-border bg-paper-surface shadow-sm;
+  @apply rounded-xl border border-paper-border bg-paper-surface;
+  box-shadow: 1px 1px 3px rgba(26, 26, 26, 0.08);
 }
 
 .pill {
   @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold;
+}
+
+/* Large editorial page headings — serif, regular weight, tight tracking,
+   matching the reference site's H1/H2 treatment. Use on <h1>/<h2> only;
+   body copy and UI chrome stay on the sans font. */
+.heading-serif {
+  @apply font-serif font-normal tracking-tight;
 }
 
 .scrollbar-thin::-webkit-scrollbar {
@@ -44,8 +55,9 @@ html, body {
   background-color: #2b3648;
   border-radius: 3px;
 }
-.paper-card ::-webkit-scrollbar-thumb {
-  background-color: #d7dae0;
+.paper-card ::-webkit-scrollbar-thumb,
+.scrollbar-thin.on-paper::-webkit-scrollbar-thumb {
+  background-color: #d1d1c1;
 }
 
 @keyframes ticker-scroll {
@@ -62,4 +74,13 @@ html, body {
 }
 .animate-blink {
   animation: blink-dot 1.4s ease-in-out infinite;
+}
+
+/* Fast, GPU-cheap interactive transitions used across buttons/cards/nav —
+   opacity + background-color only, never layout-affecting properties, so
+   hover/press states stay smooth even on low-end devices. */
+.fast-transition {
+  transition-property: background-color, border-color, color, opacity;
+  transition-duration: 120ms;
+  transition-timing-function: ease-out;
 }

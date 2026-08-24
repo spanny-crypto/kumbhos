@@ -51,7 +51,7 @@ export default function LostFoundPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-6">
-      <h1 className="text-xl font-bold text-paper-text">{t('pageLostFoundTitle')}</h1>
+      <h1 className="heading-serif text-3xl text-paper-text">{t('pageLostFoundTitle')}</h1>
       <p className="mt-1 text-sm text-paper-muted">{t('pageLostFoundSubtitle')}</p>
 
       <form onSubmit={handleSubmit} className="paper-card mt-4 space-y-3 p-4">

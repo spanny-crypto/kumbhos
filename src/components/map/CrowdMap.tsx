@@ -5,11 +5,14 @@ import maplibregl, { type Map as MLMap, type LngLatLike } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import type { CrowdPressure, Facility, GeoPoint, Incident, Zone } from '@/lib/data/types';
 
+// Matches the `risk` scale in tailwind.config.ts — kept in sync manually
+// since MapLibre layer paint expressions need literal color strings, not
+// Tailwind classes.
 const RISK_COLORS: Record<CrowdPressure['level'], string> = {
-  NORMAL: '#1f9d55',
-  BUILDING: '#c99a1e',
-  CRITICAL: '#d9691a',
-  INTERVENTION: '#c62828'
+  NORMAL: '#2e9b5c',
+  BUILDING: '#d98a2b',
+  CRITICAL: '#e0563a',
+  INTERVENTION: '#b23a2e'
 };
 
 const FACILITY_COLORS: Record<string, string> = {
@@ -49,7 +52,7 @@ const OSM_STYLE: maplibregl.StyleSpecification = {
     }
   },
   layers: [
-    { id: 'osm-tiles', type: 'raster', source: 'osm', paint: { 'raster-opacity': 0.55, 'raster-saturation': -0.6, 'raster-brightness-min': 0.05 } }
+    { id: 'osm-tiles', type: 'raster', source: 'osm', paint: { 'raster-opacity': 0.9, 'raster-saturation': -0.25, 'raster-brightness-min': 0.35 } }
   ]
 };
 
@@ -101,7 +104,7 @@ export function CrowdMap({ zones, facilities = [], incidents = [], center = { la
           type: 'symbol',
           source: 'zones',
           layout: { 'text-field': ['get', 'name'], 'text-size': 11, 'text-anchor': 'center' },
-          paint: { 'text-color': '#dde3ec', 'text-halo-color': '#0a0e14', 'text-halo-width': 1.2 }
+          paint: { 'text-color': '#1a1a1a', 'text-halo-color': '#fffdec', 'text-halo-width': 1.4 }
         });
 
         map.on('click', 'zones-fill', (e) => {
@@ -136,7 +139,7 @@ export function CrowdMap({ zones, facilities = [], incidents = [], center = { la
           type: 'circle',
           source: 'facilities',
           filter: ['has', 'point_count'],
-          paint: { 'circle-color': '#1f2836', 'circle-radius': 12, 'circle-stroke-width': 1, 'circle-stroke-color': '#5b6a83' }
+          paint: { 'circle-color': '#f7f6ee', 'circle-radius': 12, 'circle-stroke-width': 1, 'circle-stroke-color': '#a3a199' }
         });
         map.addLayer({
           id: 'facility-cluster-count',
@@ -144,14 +147,14 @@ export function CrowdMap({ zones, facilities = [], incidents = [], center = { la
           source: 'facilities',
           filter: ['has', 'point_count'],
           layout: { 'text-field': '{point_count_abbreviated}', 'text-size': 10 },
-          paint: { 'text-color': '#dde3ec' }
+          paint: { 'text-color': '#1a1a1a' }
         });
         map.addLayer({
           id: 'facility-points',
           type: 'circle',
           source: 'facilities',
           filter: ['!', ['has', 'point_count']],
-          paint: { 'circle-color': ['get', 'color'], 'circle-radius': 5, 'circle-stroke-width': 1, 'circle-stroke-color': '#0a0e14' }
+          paint: { 'circle-color': ['get', 'color'], 'circle-radius': 5, 'circle-stroke-width': 1, 'circle-stroke-color': '#fffdec' }
         });
       }
 

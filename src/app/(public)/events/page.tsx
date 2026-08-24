@@ -11,7 +11,7 @@ export default function EventsPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-6">
-      <h1 className="text-xl font-bold text-paper-text">{t('pageEventsTitle')}</h1>
+      <h1 className="heading-serif text-3xl text-paper-text">{t('pageEventsTitle')}</h1>
       <p className="mt-1 text-sm text-paper-muted">{t('pageEventsSubtitle')}</p>
 
       <AsyncState status={api.status} errorMessage={api.errorMessage} onRetry={api.retry} emptyMessage="No events scheduled.">

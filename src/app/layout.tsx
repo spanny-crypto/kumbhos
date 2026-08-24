@@ -1,6 +1,14 @@
 import type { Metadata } from 'next';
+import { Figtree, EB_Garamond } from 'next/font/google';
 import './globals.css';
 import { env } from '@/lib/config/env';
+
+// next/font self-hosts these at build time (downloaded once, served from
+// our own domain, subset + inlined font-display: swap) — no runtime request
+// to Google's font CDN and no layout shift while the font loads. This is
+// the fast path, not a `<link>` tag to fonts.googleapis.com.
+const figtree = Figtree({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
+const ebGaramond = EB_Garamond({ subsets: ['latin'], variable: '--font-serif', display: 'swap' });
 
 // metadataBase turns every relative URL below (and any relative og:image
 // etc. added later) into an absolute one using the deployment's real public
@@ -36,7 +44,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${figtree.variable} ${ebGaramond.variable}`}>
       <body className="min-h-screen bg-paper-bg font-sans text-paper-text antialiased">{children}</body>
     </html>
   );
