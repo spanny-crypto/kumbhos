@@ -1,4 +1,4 @@
-import type { RiskLevel } from '@/lib/data/types';
+import type { ReadingValue, RiskLevel } from '@/lib/data/types';
 
 export const RISK_META: Record<RiskLevel, { label: string; color: string; bg: string; dot: string }> = {
   NORMAL: { label: 'Normal', color: 'text-risk-normal', bg: 'bg-risk-normal/10 border-risk-normal/40', dot: 'bg-risk-normal' },
@@ -15,6 +15,12 @@ export function relativeTime(iso: string): string {
   const diffHr = Math.round(diffMin / 60);
   if (diffHr < 24) return `${diffHr}h ago`;
   return new Date(iso).toLocaleDateString();
+}
+
+export function formatReading(value: ReadingValue, unit: string): string {
+  if (value === null || value === undefined) return 'Not reported';
+  if (typeof value === 'number') return `${value.toLocaleString()} ${unit}`;
+  return `${value.min.toLocaleString()}–${value.max.toLocaleString()} ${unit}`;
 }
 
 export function titleCase(s: string): string {

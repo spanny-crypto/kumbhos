@@ -25,6 +25,10 @@ it reads `error.category` / `error.message` via `fetchJSON()`.
 | `/api/events` | GET | none | Scheduled programme |
 | `/api/announcements` | GET | none | Public announcements |
 | `/api/data-sources` | GET | none | Data Transparency page content |
+| `/api/water-quality` | GET | none | Publicly reported Ganga/Yamuna water-quality records (real, cited data — not simulated) |
+| `/api/water-quality` | POST | write | Add a new water-quality record |
+| `/api/water-quality/[id]` | PATCH | write | Edit any field of a water-quality record |
+| `/api/water-quality/[id]` | DELETE | write | Remove a water-quality record |
 | `/api/incidents` | GET | session | List incidents |
 | `/api/incidents` | POST | write | Create incident |
 | `/api/incidents/[id]` | GET | session | Incident detail |

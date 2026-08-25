@@ -245,6 +245,45 @@ export interface DataSourceRecord {
   status: 'ACTIVE' | 'STUBBED' | 'PLANNED';
 }
 
+// A numeric reading is sometimes a single value, sometimes a reported
+// range (different sampling locations/dates gave different results) —
+// keeping both shapes honest rather than collapsing a range into one
+// misleadingly-precise number.
+export type ReadingValue = number | { min: number; max: number } | null;
+
+export type BathingStandardVerdict = 'MEETS_STANDARD' | 'EXCEEDS_STANDARD' | 'PARTIAL' | 'DISPUTED';
+export type WaterQualityRiskLevel = 'LOW' | 'MODERATE' | 'HIGH' | 'DISPUTED';
+
+// Real, publicly reported Ganga/Yamuna water-quality figures from past
+// Kumbh gatherings (CPCB/state Pollution Control Board reports, NGT
+// filings, peer-reviewed sampling studies) — NOT simulated data, unlike
+// most of the rest of this app. Every record carries its own source
+// citation so each individual figure is independently checkable, on top
+// of the app-wide /data-sources transparency page. Fully editable by
+// Command Centre staff (requireWriteAccess) so figures can be corrected
+// or extended as new official reports come out — see docs/DATABASE.md.
+export interface WaterQualityRecord {
+  id: string;
+  kumbhEvent: string; // e.g. "Maha Kumbh 2025 — Prayagraj"
+  year: number;
+  location: string; // e.g. "Sangam (Ganga–Yamuna confluence)"
+  samplingPeriod: string; // e.g. "12 Jan – 22 Feb 2025"
+  ph: ReadingValue;
+  dissolvedOxygenMgL: ReadingValue;
+  bodMgL: ReadingValue;
+  fecalColiformMpn100ml: ReadingValue;
+  bathingStandardVerdict: BathingStandardVerdict;
+  riskLevel: WaterQualityRiskLevel;
+  summary: string;
+  notes: string | null; // caveats, disputes, methodology notes
+  sourcePublisher: string;
+  sourceUrl: string;
+  sourceDate: string; // publication date of the cited report/article
+  dataSource: DataSource;
+  updatedAt: string;
+  updatedBy: string | null; // command-centre username, once edited by staff
+}
+
 export type Role =
   | 'SUPER_ADMIN'
   | 'COMMAND_CENTER'

@@ -12,6 +12,7 @@ const PUBLIC_ROUTES = [
   'crowd',
   'navigation',
   'facilities',
+  'water-quality',
   'emergency',
   'lost-found',
   'events',

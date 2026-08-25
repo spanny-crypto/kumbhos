@@ -115,10 +115,21 @@ facing product and the staff tool, not an inconsistency.
 Infrastructure monitoring, predictive sanitation, volunteer coordination, Lost & Found (privacy-conscious, human
 verification required, no facial recognition), AI Kumbh Assistant.
 
+**Water Quality (`/water-quality`, `/command/water-quality`)** — the one section of the app built on real, publicly
+reported data rather than synthetic figures: Ganga/Yamuna bathing-water readings (pH, dissolved oxygen, BOD, fecal
+coliform) from CPCB/state Pollution Control Board reports and NGT filings covering the 2019 Ardh Kumbh, 2021 Haridwar
+Kumbh, and 2025 Maha Kumbh, each individually cited (`sourcePublisher`/`sourceUrl`/`sourceDate` per record — see
+`src/lib/data/seed/waterQuality.ts`), compared against the official CPCB bathing-water standard. Where CPCB's own
+position on the same event genuinely shifted over time (2025 Prayagraj), both readings are kept rather than picking a
+side, and the record is marked `DISPUTED` — this is deliberate: the goal is honest provenance, not a flattering
+number. Every field is editable by Command Centre staff (`requireWriteAccess()`, full CRUD) so figures can be
+corrected or extended as new official reports come out.
+
 ## Explicitly out of scope (documented, not faked)
 
 - **BHASHINI / multilingual** — the assistant's retrieval-then-answer design is language-agnostic and could be wired
-  to a translation layer, but no such integration exists in this build. English/Hindi UI copy only.
+  to a translation layer, but no such integration exists in this build. Chrome-level UI copy is English/Marathi only
+  (see `lib/i18n/dictionary.ts`); dynamically generated content stays English.
 - **Live data.gov.in ingestion** — `docs/DATA-SOURCES.md` lists the target datasets (Prayagraj water & sanitation,
   solid waste) and their official URLs, but the fetch/normalize adapters are not implemented; the corresponding
   `data_sources` entries are marked `STUBBED`, not `ACTIVE`, and no demo figure claims to be that data.

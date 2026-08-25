@@ -14,9 +14,10 @@ import type {
   SimulationEvent,
   Toilet,
   Volunteer,
+  WaterQualityRecord,
   Zone
 } from './types';
-import type { CreateIncidentInput, CreateLostFoundInput, DataProvider } from './provider';
+import type { CreateIncidentInput, CreateLostFoundInput, DataProvider, WaterQualityInput } from './provider';
 
 // Real Postgres-backed implementation of DataProvider. Only instantiated
 // when isDemoMode() is false (see index.ts), i.e. when a Supabase project
@@ -132,6 +133,36 @@ export class SupabaseDataProvider implements DataProvider {
 
   async getDataSources() {
     return this.selectAll<DataSourceRecord>('data_sources');
+  }
+
+  async getWaterQualityRecords() {
+    const { data, error } = await this.client.from('water_quality_records').select('*').order('year', { ascending: false });
+    if (error) throw new Error(error.message);
+    return (data ?? []) as WaterQualityRecord[];
+  }
+  async createWaterQualityRecord(input: WaterQualityInput, updatedBy: string) {
+    const { data, error } = await this.client
+      .from('water_quality_records')
+      .insert({ ...input, updated_by: updatedBy, updated_at: new Date().toISOString() })
+      .select('*')
+      .single();
+    if (error) throw new Error(error.message);
+    return data as WaterQualityRecord;
+  }
+  async updateWaterQualityRecord(id: string, input: Partial<WaterQualityInput>, updatedBy: string) {
+    const { data, error } = await this.client
+      .from('water_quality_records')
+      .update({ ...input, updated_by: updatedBy, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select('*')
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return (data as WaterQualityRecord) ?? null;
+  }
+  async deleteWaterQualityRecord(id: string) {
+    const { error, count } = await this.client.from('water_quality_records').delete({ count: 'exact' }).eq('id', id);
+    if (error) throw new Error(error.message);
+    return (count ?? 0) > 0;
   }
 
   async applyScenario(type: ScenarioType, zoneId: string) {

@@ -12,7 +12,8 @@ const LINKS = [
   { href: '/command/infrastructure', label: 'Infrastructure' },
   { href: '/command/sanitation', label: 'Sanitation' },
   { href: '/command/volunteers', label: 'Volunteers' },
-  { href: '/command/lost-found', label: 'Lost & Found' }
+  { href: '/command/lost-found', label: 'Lost & Found' },
+  { href: '/command/water-quality', label: 'Water Quality' }
 ];
 
 export function CommandSidebar({ name, role }: { name: string; role: Role }) {

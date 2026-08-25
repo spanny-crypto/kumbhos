@@ -241,6 +241,35 @@ create table if not exists data_sources (
   status text not null default 'ACTIVE'
 );
 
+-- Real, publicly reported Ganga/Yamuna water-quality figures from past
+-- Kumbh gatherings (CPCB / state Pollution Control Board reports, NGT
+-- filings, sampling studies) — not synthetic data. Fully editable by
+-- Command Centre staff; see src/lib/data/seed/waterQuality.ts for the
+-- seeded starting set and src/app/command/water-quality/page.tsx for the
+-- admin UI that writes here.
+create table if not exists water_quality_records (
+  id text primary key,
+  kumbh_event text not null,
+  year integer not null,
+  location text not null,
+  sampling_period text not null,
+  ph jsonb,                          -- number | { min, max } | null
+  dissolved_oxygen_mg_l jsonb,
+  bod_mg_l jsonb,
+  fecal_coliform_mpn_100ml jsonb,
+  bathing_standard_verdict text not null,  -- MEETS_STANDARD | EXCEEDS_STANDARD | PARTIAL | DISPUTED
+  risk_level text not null,                -- LOW | MODERATE | HIGH | DISPUTED
+  summary text not null,
+  notes text,
+  source_publisher text not null,
+  source_url text not null,
+  source_date text not null,
+  data_source text not null default 'GOVERNMENT_OPEN_DATA',
+  updated_at timestamptz not null default now(),
+  updated_by text
+);
+create index if not exists idx_water_quality_year on water_quality_records(year desc);
+
 -- ---------------------------------------------------------------------------
 -- Auth / audit (for a future real-Supabase-Auth deployment)
 -- ---------------------------------------------------------------------------
@@ -286,6 +315,7 @@ alter table response_teams enable row level security;
 alter table simulation_events enable row level security;
 alter table audit_logs enable row level security;
 alter table user_roles enable row level security;
+alter table water_quality_records enable row level security;
 
 create policy "public read zones" on zones for select using (true);
 create policy "public read infrastructure" on infrastructure_assets for select using (true);
@@ -294,6 +324,11 @@ create policy "public read facilities" on facilities for select using (true);
 create policy "public read events" on events for select using (true);
 create policy "public read announcements" on announcements for select using (true);
 create policy "public read data_sources" on data_sources for select using (true);
+
+create policy "public read water_quality" on water_quality_records for select using (true);
+create policy "staff write water_quality" on water_quality_records for insert with check (auth.role() = 'authenticated');
+create policy "staff update water_quality" on water_quality_records for update using (auth.role() = 'authenticated');
+create policy "staff delete water_quality" on water_quality_records for delete using (auth.role() = 'authenticated');
 
 create policy "public read lost_found" on lost_found_cases for select using (true);
 create policy "public insert lost_found" on lost_found_cases for insert with check (true);

@@ -379,6 +379,30 @@ export function generateDataSources(): DataSourceRecord[] {
       refreshFrequency: 'Live',
       dataType: 'LIVE',
       status: 'ACTIVE'
+    },
+    {
+      id: 'ds-5',
+      dataset: 'Ganga/Yamuna bathing-water quality reports — Maha Kumbh 2025, Kumbh 2021, Ardh Kumbh 2019',
+      publisher: 'Central Pollution Control Board (CPCB) / UP Pollution Control Board, via NGT filings and press reporting',
+      sourceUrl: 'https://www.tribuneindia.com/news/india/cpcb-takes-u-turn-on-maha-kumbh-water-quality',
+      license: 'Public government reporting / press coverage — see individual record citations on the Water Quality page',
+      dateObtained: now,
+      lastUpdated: now,
+      refreshFrequency: 'Manually curated by Command Centre staff as new official reports are published — see /command/water-quality',
+      dataType: 'GOVERNMENT_OPEN_DATA',
+      status: 'ACTIVE'
+    },
+    {
+      id: 'ds-6',
+      dataset: 'CPCB Primary Water Quality Criteria for Bathing Water (Class B)',
+      publisher: 'Central Pollution Control Board (CPCB), India',
+      sourceUrl: 'https://cpcb.nic.in/wqm/',
+      license: 'Public government standard',
+      dateObtained: now,
+      lastUpdated: now,
+      refreshFrequency: 'Static reference standard',
+      dataType: 'GOVERNMENT_OPEN_DATA',
+      status: 'ACTIVE'
     }
   ];
 }

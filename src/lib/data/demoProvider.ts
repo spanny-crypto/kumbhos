@@ -12,9 +12,10 @@ import type {
   SimulationEvent,
   Toilet,
   Volunteer,
+  WaterQualityRecord,
   Zone
 } from './types';
-import type { CreateIncidentInput, CreateLostFoundInput, DataProvider } from './provider';
+import type { CreateIncidentInput, CreateLostFoundInput, DataProvider, WaterQualityInput } from './provider';
 import { lostFoundBackup } from './lostFoundBackup';
 import {
   generateAnnouncements,
@@ -29,6 +30,7 @@ import {
   generateVolunteers,
   generateZones
 } from './seed/generate';
+import { generateWaterQualityRecords } from './seed/waterQuality';
 
 interface DemoState {
   zones: Zone[];
@@ -43,6 +45,7 @@ interface DemoState {
   announcements: Announcement[];
   dataSources: DataSourceRecord[];
   simulationEvents: SimulationEvent[];
+  waterQuality: WaterQualityRecord[];
 }
 
 // Module-level singleton so state persists across requests within one server
@@ -63,7 +66,8 @@ function buildInitialState(): DemoState {
     events: generateEvents(zones),
     announcements: generateAnnouncements(),
     dataSources: generateDataSources(),
-    simulationEvents: []
+    simulationEvents: [],
+    waterQuality: generateWaterQualityRecords()
   };
 }
 
@@ -252,6 +256,32 @@ export class DemoDataProvider implements DataProvider {
 
   async getDataSources() {
     return delay(state.dataSources);
+  }
+
+  async getWaterQualityRecords() {
+    return delay([...state.waterQuality].sort((a, b) => b.year - a.year));
+  }
+  async createWaterQualityRecord(input: WaterQualityInput, updatedBy: string) {
+    const record: WaterQualityRecord = {
+      ...input,
+      id: `wq-${Date.now()}-${Math.round(Math.random() * 1000)}`,
+      updatedAt: new Date().toISOString(),
+      updatedBy
+    };
+    state.waterQuality = [record, ...state.waterQuality];
+    return delay(record);
+  }
+  async updateWaterQualityRecord(id: string, input: Partial<WaterQualityInput>, updatedBy: string) {
+    const idx = state.waterQuality.findIndex((r) => r.id === id);
+    if (idx === -1) return delay(null);
+    const updated: WaterQualityRecord = { ...state.waterQuality[idx]!, ...input, updatedAt: new Date().toISOString(), updatedBy };
+    state.waterQuality = [...state.waterQuality.slice(0, idx), updated, ...state.waterQuality.slice(idx + 1)];
+    return delay(updated);
+  }
+  async deleteWaterQualityRecord(id: string) {
+    const before = state.waterQuality.length;
+    state.waterQuality = state.waterQuality.filter((r) => r.id !== id);
+    return delay(state.waterQuality.length < before);
   }
 
   async applyScenario(type: ScenarioType, zoneId: string) {

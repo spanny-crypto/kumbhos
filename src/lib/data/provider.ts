@@ -12,6 +12,7 @@ import type {
   SimulationEvent,
   Toilet,
   Volunteer,
+  WaterQualityRecord,
   Zone
 } from './types';
 
@@ -28,6 +29,10 @@ export interface CreateLostFoundInput {
   description: string;
   contactInfo: string;
 }
+
+// Every field is editable by Command Centre staff — see
+// src/app/command/water-quality/page.tsx and docs/DATABASE.md.
+export type WaterQualityInput = Omit<WaterQualityRecord, 'id' | 'updatedAt' | 'updatedBy'>;
 
 /**
  * Everything the app needs from a data backend. DemoDataProvider implements
@@ -62,6 +67,11 @@ export interface DataProvider {
   getAnnouncements(): Promise<Announcement[]>;
 
   getDataSources(): Promise<DataSourceRecord[]>;
+
+  getWaterQualityRecords(): Promise<WaterQualityRecord[]>;
+  createWaterQualityRecord(input: WaterQualityInput, updatedBy: string): Promise<WaterQualityRecord>;
+  updateWaterQualityRecord(id: string, input: Partial<WaterQualityInput>, updatedBy: string): Promise<WaterQualityRecord | null>;
+  deleteWaterQualityRecord(id: string): Promise<boolean>;
 
   applyScenario(type: ScenarioType, zoneId: string): Promise<SimulationEvent>;
   getRecentSimulationEvents(): Promise<SimulationEvent[]>;
