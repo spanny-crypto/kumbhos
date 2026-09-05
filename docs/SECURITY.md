@@ -53,11 +53,20 @@ demo, not sufficient for production (use a shared store, e.g. Redis, behind a re
 
 ## Privacy
 
+See [/privacy](../src/app/(public)/privacy/page.tsx) for the user-facing policy (DPDP Act-oriented) — this section is
+the technical detail behind it.
+
 - Lost & Found collects only what's needed to reunite people/items (type, approximate zone, free-text description,
-  reporter contact) — no photos, no facial recognition, no biometric data.
-- Every status change past `OPEN` on a Lost & Found case requires a signed-in staff account (`requireWriteAccess()`),
-  i.e. a human verifies any match before it's marked resolved.
-- No precise device geolocation is collected anywhere in this build.
+  reporter contact) — no photos, no facial recognition, no biometric data. The public `GET /api/lost-found` endpoint
+  returns the full case object, contact info included — the public UI just doesn't render that field in its list, so
+  it's not actually access-controlled, only unsurfaced. Worth tightening before a real deployment.
+- ID Wristbands (`/wristband`) collect a name, age, guardian name/phone, and optional medical notes — the most
+  sensitive personal data in this app, since it's often for a child. Single-record lookup by id is intentionally
+  public and unauthenticated (that's the feature's whole point — see docs/ARCHITECTURE.md), rate-limited at
+  30 req/min/IP against enumeration; the full roster is staff-only (`requireSession()`).
+- Every status change past `OPEN` on a Lost & Found case, and any Wristband status change, requires a signed-in staff
+  account (`requireWriteAccess()`) — i.e. a human verifies any match/resolution before it's marked resolved.
+- No precise device geolocation is collected server-side anywhere in this build — see `LocationProvider.tsx`.
 
 ## Public vs. private surfaces
 

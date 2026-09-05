@@ -15,11 +15,13 @@ interface HealthResponse {
   dependencies: Record<string, string>;
 }
 
-function MetricCard({ label, value, tone }: { label: string; value: string | number; tone?: 'normal' | 'warning' | 'critical' }) {
+function MetricCard({ label, value, tone, emoji }: { label: string; value: string | number; tone?: 'normal' | 'warning' | 'critical'; emoji: string }) {
   const toneClass = tone === 'critical' ? 'text-risk-critical' : tone === 'warning' ? 'text-risk-building' : 'text-ink-50';
   return (
     <div className="card p-4">
-      <p className="text-xs uppercase tracking-wide text-ink-400">{label}</p>
+      <p className="text-xs uppercase tracking-wide text-ink-400">
+        <span aria-hidden="true">{emoji}</span> {label}
+      </p>
       <p className={`mt-1 text-2xl font-bold ${toneClass}`}>{value}</p>
     </div>
   );
@@ -60,14 +62,15 @@ export default function CommandDashboard() {
 
       <AsyncState status={zonesApi.status} errorMessage={zonesApi.errorMessage} onRetry={zonesApi.retry} variant="dark">
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          <MetricCard label="Avg. Crowd Pressure" value={avgScore} tone={avgScore >= 56 ? 'critical' : avgScore >= 31 ? 'warning' : 'normal'} />
-          <MetricCard label="Critical Zones" value={criticalZones} tone={criticalZones > 0 ? 'critical' : 'normal'} />
-          <MetricCard label="Active Incidents" value={activeIncidents} tone={activeIncidents > 0 ? 'warning' : 'normal'} />
-          <MetricCard label="Infrastructure Failures" value={infraFailures} tone={infraFailures > 0 ? 'critical' : 'normal'} />
-          <MetricCard label="Sanitation Alerts" value={sanitationAlerts} tone={sanitationAlerts > 0 ? 'warning' : 'normal'} />
-          <MetricCard label="Available Volunteers" value={availableVolunteers} />
-          <MetricCard label="Parking Pressure Points" value={parkingIssues} tone={parkingIssues > 0 ? 'warning' : 'normal'} />
+          <MetricCard emoji="📈" label="Avg. Crowd Pressure" value={avgScore} tone={avgScore >= 56 ? 'critical' : avgScore >= 31 ? 'warning' : 'normal'} />
+          <MetricCard emoji="🔴" label="Critical Zones" value={criticalZones} tone={criticalZones > 0 ? 'critical' : 'normal'} />
+          <MetricCard emoji="🚨" label="Active Incidents" value={activeIncidents} tone={activeIncidents > 0 ? 'warning' : 'normal'} />
+          <MetricCard emoji="🏗️" label="Infrastructure Failures" value={infraFailures} tone={infraFailures > 0 ? 'critical' : 'normal'} />
+          <MetricCard emoji="🚻" label="Sanitation Alerts" value={sanitationAlerts} tone={sanitationAlerts > 0 ? 'warning' : 'normal'} />
+          <MetricCard emoji="🙋" label="Available Volunteers" value={availableVolunteers} />
+          <MetricCard emoji="🅿️" label="Parking Pressure Points" value={parkingIssues} tone={parkingIssues > 0 ? 'warning' : 'normal'} />
           <MetricCard
+            emoji="⚙️"
             label="System Health"
             value={healthApi.data ? healthApi.data.mode : '—'}
             tone={healthApi.data?.mode === 'DEMO' ? 'warning' : 'normal'}

@@ -18,7 +18,8 @@ const PUBLIC_ROUTES = [
   'lost-found',
   'events',
   'assistant',
-  'data-sources'
+  'data-sources',
+  'privacy'
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

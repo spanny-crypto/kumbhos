@@ -243,6 +243,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             KumbhOS Prototype · Demo/simulation data unless otherwise labeled · Not affiliated with any government authority ·{' '}
             <Link href="/data-sources" className="underline hover:text-paper-muted">
               Data sources
+            </Link>{' '}
+            ·{' '}
+            <Link href="/privacy" className="underline hover:text-paper-muted">
+              Privacy Policy
             </Link>
           </p>
           <p className="mt-1.5 text-sm font-bold text-paper-text">A SPANDAN PARAKH PRODUCTION</p>

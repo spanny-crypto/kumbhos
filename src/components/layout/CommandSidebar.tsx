@@ -5,16 +5,16 @@ import { usePathname, useRouter } from 'next/navigation';
 import type { Role } from '@/lib/data/types';
 
 const LINKS = [
-  { href: '/command', label: 'Dashboard' },
-  { href: '/command/map', label: 'Operations Map' },
-  { href: '/command/simulator', label: 'Flow Simulator' },
-  { href: '/command/incidents', label: 'Incidents' },
-  { href: '/command/infrastructure', label: 'Infrastructure' },
-  { href: '/command/sanitation', label: 'Sanitation' },
-  { href: '/command/volunteers', label: 'Volunteers' },
-  { href: '/command/lost-found', label: 'Lost & Found' },
-  { href: '/command/water-quality', label: 'Water Quality' },
-  { href: '/command/wristbands', label: 'ID Wristbands' }
+  { href: '/command', label: 'Dashboard', emoji: '📊' },
+  { href: '/command/map', label: 'Operations Map', emoji: '🗺️' },
+  { href: '/command/simulator', label: 'Flow Simulator', emoji: '🧪' },
+  { href: '/command/incidents', label: 'Incidents', emoji: '🚨' },
+  { href: '/command/infrastructure', label: 'Infrastructure', emoji: '🏗️' },
+  { href: '/command/sanitation', label: 'Sanitation', emoji: '🚻' },
+  { href: '/command/volunteers', label: 'Volunteers', emoji: '🙋' },
+  { href: '/command/lost-found', label: 'Lost & Found', emoji: '🔍' },
+  { href: '/command/water-quality', label: 'Water Quality', emoji: '💧' },
+  { href: '/command/wristbands', label: 'ID Wristbands', emoji: '🆔' }
 ];
 
 export function CommandSidebar({ name, role }: { name: string; role: Role }) {
@@ -40,10 +40,11 @@ export function CommandSidebar({ name, role }: { name: string; role: Role }) {
             <Link
               key={link.href}
               href={link.href}
-              className={`block rounded-md px-3 py-2 text-sm transition ${
+              className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm transition ${
                 active ? 'bg-accent/20 text-accent-light' : 'text-ink-300 hover:bg-ink-800 hover:text-ink-100'
               }`}
             >
+              <span aria-hidden="true">{link.emoji}</span>
               {link.label}
             </Link>
           );
