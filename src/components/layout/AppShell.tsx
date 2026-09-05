@@ -20,6 +20,7 @@ import {
   Navigation as NavigationIcon,
   ShieldAlert,
   Waves,
+  QrCode,
   Menu,
   X
 } from 'lucide-react';
@@ -36,6 +37,7 @@ const NAV_ITEMS: { href: string; labelKey: DictionaryKey; icon: typeof LayoutDas
   { href: '/navigation', labelKey: 'navNavigation', icon: Route },
   { href: '/facilities', labelKey: 'navFacilities', icon: Building2 },
   { href: '/water-quality', labelKey: 'navWaterQuality', icon: Droplets },
+  { href: '/wristband', labelKey: 'navWristband', icon: QrCode },
   { href: '/emergency', labelKey: 'navEmergency', icon: Siren },
   { href: '/lost-found', labelKey: 'navLostFound', icon: Search },
   { href: '/events', labelKey: 'navEvents', icon: CalendarDays },

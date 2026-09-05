@@ -125,6 +125,18 @@ side, and the record is marked `DISPUTED` — this is deliberate: the goal is ho
 number. Every field is editable by Command Centre staff (`requireWriteAccess()`, full CRUD) so figures can be
 corrected or extended as new official reports come out.
 
+**ID Wristband (`/wristband`, `/wristband/[id]`, `/command/wristbands`)** — a printable QR/ID card a guardian
+generates on-site in under a minute for a child or elderly relative: name, age, guardian contact, optional medical
+notes. The QR (and printed short code, for when a phone camera isn't handy) points to a public, unauthenticated
+lookup page (`/wristband/[id]`) with a single large tap-to-call button — a stranger who finds the wearer needs zero
+app install or sign-in. This is a deliberate exception to the app's usual "don't expose contact info publicly"
+posture (see Lost & Found below): the id itself is the access control (an unguessable short code, rate-limited at 30
+lookups/min/IP against scripted guessing — see `src/app/api/wristbands/[id]/route.ts`), not a login, since requiring
+one would defeat the entire point. Persisted the same way as Lost & Found — real Supabase storage when configured,
+in-memory fallback otherwise (`src/lib/data/wristbandBackup.ts`) — because a band created at a kiosk needs to survive
+long enough to be scanned hours later, possibly after a serverless cold start. Command Centre staff can view the full
+roster and mark a case reunited/expired (`requireWriteAccess()`); no photo or facial data is ever collected.
+
 ## Explicitly out of scope (documented, not faked)
 
 - **BHASHINI / multilingual** — the assistant's retrieval-then-answer design is language-agnostic and could be wired

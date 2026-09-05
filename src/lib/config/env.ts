@@ -78,10 +78,10 @@ export function isAiConfigured(): boolean {
 
 /**
  * True when Supabase credentials are present, independent of DEMO_MODE.
- * Used to back just the Lost & Found feature with real persistent storage
- * while the rest of the app stays on demo data — see
- * src/lib/data/lostFoundBackup.ts.
+ * Used to back individual features (Lost & Found, ID Wristbands) with real
+ * persistent storage while the rest of the app stays on demo data — see
+ * src/lib/data/lostFoundBackup.ts and src/lib/data/wristbandBackup.ts.
  */
-export function isSupabaseLostFoundConfigured(): boolean {
+export function isSupabaseConfigured(): boolean {
   return Boolean(env.supabase.url && env.supabase.serviceRoleKey);
 }

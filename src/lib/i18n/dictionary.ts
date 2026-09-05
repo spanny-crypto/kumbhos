@@ -23,6 +23,7 @@ export const dictionary = {
   navNavigation: { en: 'Trip Planner', mr: 'प्रवास नियोजक' },
   navFacilities: { en: 'Facilities', mr: 'सुविधा' },
   navWaterQuality: { en: 'Water Quality', mr: 'पाणी गुणवत्ता' },
+  navWristband: { en: 'ID Wristband', mr: 'ओळख पट्टी' },
   navEmergency: { en: 'Emergency', mr: 'आणीबाणी' },
   navLostFound: { en: 'Lost & Found', mr: 'हरवले-सापडले' },
   navEvents: { en: 'Events', mr: 'कार्यक्रम' },

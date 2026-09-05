@@ -270,6 +270,26 @@ create table if not exists water_quality_records (
 );
 create index if not exists idx_water_quality_year on water_quality_records(year desc);
 
+-- Printable ID/QR wristband profiles — guardians create these on-site for a
+-- child or elderly relative so a stranger who finds them can scan the QR
+-- (or read the printed short code) and immediately see who to call. id is
+-- the short human-typeable code (see src/lib/utils/id.ts), not a uuid, since
+-- it's printed on the physical band. Real user-entered contact/medical
+-- info, not synthetic data — see src/lib/data/wristbandBackup.ts.
+create table if not exists wristband_profiles (
+  id text primary key,
+  full_name text not null,
+  age integer,
+  guardian_name text not null,
+  guardian_phone text not null,
+  meeting_point_zone_id text references zones(id),
+  medical_notes text,
+  status text not null default 'ACTIVE',  -- ACTIVE | REUNITED | EXPIRED
+  created_at timestamptz not null default now(),
+  data_source text not null default 'USER_REPORTED'
+);
+create index if not exists idx_wristband_status on wristband_profiles(status);
+
 -- ---------------------------------------------------------------------------
 -- Auth / audit (for a future real-Supabase-Auth deployment)
 -- ---------------------------------------------------------------------------
@@ -316,6 +336,7 @@ alter table simulation_events enable row level security;
 alter table audit_logs enable row level security;
 alter table user_roles enable row level security;
 alter table water_quality_records enable row level security;
+alter table wristband_profiles enable row level security;
 
 create policy "public read zones" on zones for select using (true);
 create policy "public read infrastructure" on infrastructure_assets for select using (true);
@@ -332,6 +353,16 @@ create policy "staff delete water_quality" on water_quality_records for delete u
 
 create policy "public read lost_found" on lost_found_cases for select using (true);
 create policy "public insert lost_found" on lost_found_cases for insert with check (true);
+
+-- No public/anon policy at all, unlike every other table above: wristband
+-- profiles hold a real name, a guardian's phone number, and optional
+-- medical notes for (often) a child. The app only ever reads/writes this
+-- table server-side with the service-role key (which bypasses RLS and is
+-- never exposed to the browser — see wristbandBackup.ts), gated by its own
+-- rate-limited single-id lookup, so the anon key is intentionally left with
+-- zero access here rather than mirroring lost_found_cases' public policies.
+create policy "staff read wristbands" on wristband_profiles for select using (auth.role() = 'authenticated');
+create policy "staff update wristbands" on wristband_profiles for update using (auth.role() = 'authenticated');
 
 create policy "staff read incidents" on incidents for select using (auth.role() = 'authenticated');
 create policy "staff write incidents" on incidents for insert with check (auth.role() = 'authenticated');

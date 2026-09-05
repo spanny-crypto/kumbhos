@@ -13,10 +13,13 @@ import type {
   Toilet,
   Volunteer,
   WaterQualityRecord,
+  WristbandProfile,
   Zone
 } from './types';
-import type { CreateIncidentInput, CreateLostFoundInput, DataProvider, WaterQualityInput } from './provider';
+import type { CreateIncidentInput, CreateLostFoundInput, CreateWristbandInput, DataProvider, WaterQualityInput } from './provider';
 import { lostFoundBackup } from './lostFoundBackup';
+import { wristbandBackup } from './wristbandBackup';
+import { generateShortCode } from '@/lib/utils/id';
 import {
   generateAnnouncements,
   generateDataSources,
@@ -46,6 +49,7 @@ interface DemoState {
   dataSources: DataSourceRecord[];
   simulationEvents: SimulationEvent[];
   waterQuality: WaterQualityRecord[];
+  wristbands: WristbandProfile[];
 }
 
 // Module-level singleton so state persists across requests within one server
@@ -67,7 +71,11 @@ function buildInitialState(): DemoState {
     announcements: generateAnnouncements(),
     dataSources: generateDataSources(),
     simulationEvents: [],
-    waterQuality: generateWaterQualityRecords()
+    waterQuality: generateWaterQualityRecords(),
+    // No seed data here, unlike everything else — wristband profiles are
+    // real people's real contact info, entered by real guardians on-site,
+    // not synthetic demo content.
+    wristbands: []
   };
 }
 
@@ -282,6 +290,51 @@ export class DemoDataProvider implements DataProvider {
     const before = state.waterQuality.length;
     state.waterQuality = state.waterQuality.filter((r) => r.id !== id);
     return delay(state.waterQuality.length < before);
+  }
+
+  // Same real-Supabase-when-configured, in-memory-otherwise pattern as
+  // Lost & Found (see wristbandBackup.ts) — a wristband created at a kiosk
+  // needs to survive long enough for a stranger to scan it hours later,
+  // possibly after a serverless cold start has wiped the in-memory state.
+  async getWristbandProfiles() {
+    const remote = await wristbandBackup.list();
+    if (remote) return remote;
+    return delay(state.wristbands);
+  }
+  async getWristbandProfile(id: string) {
+    // Deliberately falls back to the local array even when Supabase is
+    // "configured" (not just when it's absent) — createWristbandProfile
+    // does the same, and a Supabase project that's configured but
+    // unreachable (DNS failure, brief outage) would otherwise strand every
+    // fallback-created wristband as permanently unlookupable.
+    const remote = await wristbandBackup.get(id);
+    if (remote) return remote;
+    return delay(state.wristbands.find((w) => w.id === id) ?? null);
+  }
+  async createWristbandProfile(input: CreateWristbandInput) {
+    const remote = await wristbandBackup.create(input);
+    if (remote) return remote;
+    const profile: WristbandProfile = {
+      ...input,
+      id: generateShortCode(),
+      status: 'ACTIVE',
+      createdAt: new Date().toISOString(),
+      dataSource: 'USER_REPORTED'
+    };
+    state.wristbands = [profile, ...state.wristbands];
+    return delay(profile);
+  }
+  async updateWristbandStatus(id: string, status: WristbandProfile['status']) {
+    // Same "fall back even when configured" reasoning as getWristbandProfile
+    // above — otherwise a status update on a locally-fallback-created
+    // wristband would silently no-op against an unreachable Supabase.
+    const remote = await wristbandBackup.updateStatus(id, status);
+    if (remote) return remote;
+    const idx = state.wristbands.findIndex((w) => w.id === id);
+    if (idx === -1) return delay(null);
+    const updated: WristbandProfile = { ...state.wristbands[idx]!, status };
+    state.wristbands = [...state.wristbands.slice(0, idx), updated, ...state.wristbands.slice(idx + 1)];
+    return delay(updated);
   }
 
   async applyScenario(type: ScenarioType, zoneId: string) {

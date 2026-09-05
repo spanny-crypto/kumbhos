@@ -13,6 +13,8 @@ import type {
   Toilet,
   Volunteer,
   WaterQualityRecord,
+  WristbandProfile,
+  WristbandStatus,
   Zone
 } from './types';
 
@@ -33,6 +35,15 @@ export interface CreateLostFoundInput {
 // Every field is editable by Command Centre staff — see
 // src/app/command/water-quality/page.tsx and docs/DATABASE.md.
 export type WaterQualityInput = Omit<WaterQualityRecord, 'id' | 'updatedAt' | 'updatedBy'>;
+
+export interface CreateWristbandInput {
+  fullName: string;
+  age: number | null;
+  guardianName: string;
+  guardianPhone: string;
+  meetingPointZoneId: string | null;
+  medicalNotes: string | null;
+}
 
 /**
  * Everything the app needs from a data backend. DemoDataProvider implements
@@ -72,6 +83,11 @@ export interface DataProvider {
   createWaterQualityRecord(input: WaterQualityInput, updatedBy: string): Promise<WaterQualityRecord>;
   updateWaterQualityRecord(id: string, input: Partial<WaterQualityInput>, updatedBy: string): Promise<WaterQualityRecord | null>;
   deleteWaterQualityRecord(id: string): Promise<boolean>;
+
+  getWristbandProfiles(): Promise<WristbandProfile[]>;
+  getWristbandProfile(id: string): Promise<WristbandProfile | null>;
+  createWristbandProfile(input: CreateWristbandInput): Promise<WristbandProfile>;
+  updateWristbandStatus(id: string, status: WristbandStatus): Promise<WristbandProfile | null>;
 
   applyScenario(type: ScenarioType, zoneId: string): Promise<SimulationEvent>;
   getRecentSimulationEvents(): Promise<SimulationEvent[]>;

@@ -284,6 +284,28 @@ export interface WaterQualityRecord {
   updatedBy: string | null; // command-centre username, once edited by staff
 }
 
+export type WristbandStatus = 'ACTIVE' | 'REUNITED' | 'EXPIRED';
+
+// A printable QR/ID card a guardian creates on-site for a child, elderly
+// relative, or anyone who could get separated in the crowd. The id doubles
+// as the short code printed on the physical band (see generateShortCode)
+// and the path segment of the QR's URL (/wristband/[id]) — a stranger who
+// finds the wearer scans it and immediately sees who to call, no app or
+// login required. Deliberately minimal: no photo, no facial data, no
+// address — just enough to reunite quickly. See docs/SECURITY.md.
+export interface WristbandProfile {
+  id: string;
+  fullName: string;
+  age: number | null;
+  guardianName: string;
+  guardianPhone: string;
+  meetingPointZoneId: string | null;
+  medicalNotes: string | null;
+  status: WristbandStatus;
+  createdAt: string;
+  dataSource: DataSource;
+}
+
 export type Role =
   | 'SUPER_ADMIN'
   | 'COMMAND_CENTER'

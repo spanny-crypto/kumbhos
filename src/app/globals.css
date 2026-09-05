@@ -84,3 +84,21 @@ html, body {
   transition-duration: 120ms;
   transition-timing-function: ease-out;
 }
+
+/* Isolates the printable wristband card so "Print" doesn't dump the whole
+   app chrome (sidebar, header, footer) onto paper — see WristbandCard.tsx. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #wristband-print-card,
+  #wristband-print-card * {
+    visibility: visible;
+  }
+  #wristband-print-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+}

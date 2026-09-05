@@ -15,9 +15,11 @@ import type {
   Toilet,
   Volunteer,
   WaterQualityRecord,
+  WristbandProfile,
   Zone
 } from './types';
-import type { CreateIncidentInput, CreateLostFoundInput, DataProvider, WaterQualityInput } from './provider';
+import type { CreateIncidentInput, CreateLostFoundInput, CreateWristbandInput, DataProvider, WaterQualityInput } from './provider';
+import { generateShortCode } from '@/lib/utils/id';
 
 // Real Postgres-backed implementation of DataProvider. Only instantiated
 // when isDemoMode() is false (see index.ts), i.e. when a Supabase project
@@ -163,6 +165,31 @@ export class SupabaseDataProvider implements DataProvider {
     const { error, count } = await this.client.from('water_quality_records').delete({ count: 'exact' }).eq('id', id);
     if (error) throw new Error(error.message);
     return (count ?? 0) > 0;
+  }
+
+  async getWristbandProfiles() {
+    const { data, error } = await this.client.from('wristband_profiles').select('*').order('created_at', { ascending: false });
+    if (error) throw new Error(error.message);
+    return (data ?? []) as WristbandProfile[];
+  }
+  async getWristbandProfile(id: string) {
+    const { data, error } = await this.client.from('wristband_profiles').select('*').eq('id', id).maybeSingle();
+    if (error) throw new Error(error.message);
+    return (data as WristbandProfile) ?? null;
+  }
+  async createWristbandProfile(input: CreateWristbandInput) {
+    const { data, error } = await this.client
+      .from('wristband_profiles')
+      .insert({ ...input, id: generateShortCode(), status: 'ACTIVE', dataSource: 'USER_REPORTED', createdAt: new Date().toISOString() })
+      .select('*')
+      .single();
+    if (error) throw new Error(error.message);
+    return data as WristbandProfile;
+  }
+  async updateWristbandStatus(id: string, status: WristbandProfile['status']) {
+    const { data, error } = await this.client.from('wristband_profiles').update({ status }).eq('id', id).select('*').maybeSingle();
+    if (error) throw new Error(error.message);
+    return (data as WristbandProfile) ?? null;
   }
 
   async applyScenario(type: ScenarioType, zoneId: string) {

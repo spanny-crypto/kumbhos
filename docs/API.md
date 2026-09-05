@@ -29,6 +29,10 @@ it reads `error.category` / `error.message` via `fetchJSON()`.
 | `/api/water-quality` | POST | write | Add a new water-quality record |
 | `/api/water-quality/[id]` | PATCH | write | Edit any field of a water-quality record |
 | `/api/water-quality/[id]` | DELETE | write | Remove a water-quality record |
+| `/api/wristbands` | GET | session | Staff roster of all ID wristbands |
+| `/api/wristbands` | POST | none | Create a printable ID wristband (public — any guardian) |
+| `/api/wristbands/[id]` | GET | none, rate-limited | Look up one wristband by its printed/QR code (30 req/min/IP) |
+| `/api/wristbands/[id]` | PATCH | write | Mark a wristband reunited/expired |
 | `/api/incidents` | GET | session | List incidents |
 | `/api/incidents` | POST | write | Create incident |
 | `/api/incidents/[id]` | GET | session | Incident detail |

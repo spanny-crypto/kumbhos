@@ -1,5 +1,5 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { env, isSupabaseLostFoundConfigured } from '@/lib/config/env';
+import { env, isSupabaseConfigured } from '@/lib/config/env';
 import type { LostFoundCase } from './types';
 import type { CreateLostFoundInput } from './provider';
 
@@ -46,10 +46,10 @@ function rowToCase(row: LostFoundRow): LostFoundCase {
 }
 
 export const lostFoundBackup = {
-  isConfigured: isSupabaseLostFoundConfigured,
+  isConfigured: isSupabaseConfigured,
 
   async list(): Promise<LostFoundCase[] | null> {
-    if (!isSupabaseLostFoundConfigured()) return null;
+    if (!isSupabaseConfigured()) return null;
     try {
       const { data, error } = await getClient().from('lost_found_cases').select('*').order('reported_at', { ascending: false });
       if (error) throw error;
@@ -61,7 +61,7 @@ export const lostFoundBackup = {
   },
 
   async create(input: CreateLostFoundInput): Promise<LostFoundCase | null> {
-    if (!isSupabaseLostFoundConfigured()) return null;
+    if (!isSupabaseConfigured()) return null;
     try {
       const { data, error } = await getClient()
         .from('lost_found_cases')
@@ -84,7 +84,7 @@ export const lostFoundBackup = {
   },
 
   async updateStatus(id: string, status: LostFoundCase['status']): Promise<LostFoundCase | null> {
-    if (!isSupabaseLostFoundConfigured()) return null;
+    if (!isSupabaseConfigured()) return null;
     try {
       const { data, error } = await getClient().from('lost_found_cases').update({ status }).eq('id', id).select('*').maybeSingle();
       if (error) throw error;
