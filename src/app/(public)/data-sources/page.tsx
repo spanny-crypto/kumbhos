@@ -3,6 +3,7 @@
 import { useApi } from '@/hooks/useApi';
 import { AsyncState } from '@/components/common/AsyncState';
 import { useLanguage } from '@/components/layout/LanguageProvider';
+import { dataSourceStatusLabels, dataSourceTypeLabels, tEnum } from '@/lib/i18n/enumLabels';
 import type { DataSourceRecord } from '@/lib/data/types';
 
 const TYPE_STYLE: Record<DataSourceRecord['dataType'], string> = {
@@ -15,7 +16,7 @@ const TYPE_STYLE: Record<DataSourceRecord['dataType'], string> = {
 
 export default function DataSourcesPage() {
   const api = useApi<DataSourceRecord[]>('/api/data-sources');
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6">
@@ -28,11 +29,11 @@ export default function DataSourcesPage() {
             <div key={ds.id} className="paper-card p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="text-sm font-semibold text-paper-text">{ds.dataset}</p>
-                <span className={`pill border ${TYPE_STYLE[ds.dataType]}`}>{ds.dataType.replace('_', ' ')}</span>
+                <span className={`pill border ${TYPE_STYLE[ds.dataType]}`}>{tEnum(dataSourceTypeLabels, ds.dataType, lang)}</span>
               </div>
-              <p className="mt-1 text-xs text-paper-muted">Publisher: {ds.publisher}</p>
+              <p className="mt-1 text-xs text-paper-muted">{t('labelPublisher')}: {ds.publisher}</p>
               <p className="text-xs text-paper-muted">
-                Source:{' '}
+                {t('labelSource')}:{' '}
                 {ds.sourceUrl.startsWith('http') ? (
                   <a href={ds.sourceUrl} target="_blank" rel="noreferrer" className="text-brand-600 hover:underline">
                     {ds.sourceUrl}
@@ -41,8 +42,10 @@ export default function DataSourcesPage() {
                   ds.sourceUrl
                 )}
               </p>
-              <p className="text-xs text-paper-muted">License: {ds.license}</p>
-              <p className="text-xs text-paper-muted">Status: {ds.status} · Refresh: {ds.refreshFrequency}</p>
+              <p className="text-xs text-paper-muted">{t('labelLicense')}: {ds.license}</p>
+              <p className="text-xs text-paper-muted">
+                {t('labelStatus')}: {tEnum(dataSourceStatusLabels, ds.status, lang)} · {t('labelRefresh')}: {ds.refreshFrequency}
+              </p>
             </div>
           ))}
         </div>

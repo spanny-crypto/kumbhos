@@ -5,7 +5,7 @@ import { useApi } from '@/hooks/useApi';
 import { AsyncState } from '@/components/common/AsyncState';
 import { DemoDataBadge } from '@/components/common/DemoDataBadge';
 import { useLanguage } from '@/components/layout/LanguageProvider';
-import { titleCase } from '@/lib/utils/format';
+import { assetCategoryLabels, assetStatusLabels, tEnum } from '@/lib/i18n/enumLabels';
 import type { AssetCategory, AssetStatus, InfrastructureAsset } from '@/lib/data/types';
 
 const STATUS_STYLE: Record<AssetStatus, string> = {
@@ -18,7 +18,7 @@ const STATUS_STYLE: Record<AssetStatus, string> = {
 export default function FacilitiesPage() {
   const api = useApi<InfrastructureAsset[]>('/api/infrastructure');
   const [filter, setFilter] = useState<AssetCategory | 'ALL'>('ALL');
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
   const categories = useMemo(() => {
     const set = new Set((api.data ?? []).map((a) => a.category));
@@ -40,11 +40,11 @@ export default function FacilitiesPage() {
       <AsyncState status={api.status} errorMessage={api.errorMessage} onRetry={api.retry} emptyMessage="No facility data available.">
         <div className="mb-4 flex flex-wrap gap-2">
           <button onClick={() => setFilter('ALL')} className={`rounded-full border px-3 py-1 text-xs ${filter === 'ALL' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-paper-border text-paper-muted'}`}>
-            All
+            {t('filterAll')}
           </button>
           {categories.map((c) => (
             <button key={c} onClick={() => setFilter(c)} className={`rounded-full border px-3 py-1 text-xs ${filter === c ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-paper-border text-paper-muted'}`}>
-              {titleCase(c)}
+              {tEnum(assetCategoryLabels, c, lang)}
             </button>
           ))}
         </div>
@@ -54,9 +54,9 @@ export default function FacilitiesPage() {
             <div key={asset.id} className="paper-card p-4">
               <div className="flex items-start justify-between gap-2">
                 <p className="text-sm font-semibold text-paper-text">{asset.name}</p>
-                <span className={`pill border ${STATUS_STYLE[asset.status]}`}>{titleCase(asset.status)}</span>
+                <span className={`pill border ${STATUS_STYLE[asset.status]}`}>{tEnum(assetStatusLabels, asset.status, lang)}</span>
               </div>
-              <p className="mt-1 text-xs text-paper-muted">{titleCase(asset.category)}{asset.capacity ? ` · capacity ${asset.capacity}` : ''}</p>
+              <p className="mt-1 text-xs text-paper-muted">{tEnum(assetCategoryLabels, asset.category, lang)}{asset.capacity ? ` · capacity ${asset.capacity}` : ''}</p>
             </div>
           ))}
         </div>

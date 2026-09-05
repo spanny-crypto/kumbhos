@@ -10,22 +10,29 @@ import { useLocation } from '@/components/layout/LocationProvider';
 import { PressureBadge } from '@/components/crowd/PressureBadge';
 import { formatDistance, nearest } from '@/lib/utils/geo';
 import type { AssetCategory, CrowdPressure, Facility, Zone } from '@/lib/data/types';
+import type { DictionaryKey } from '@/lib/i18n/dictionary';
 
 interface ZoneWithPressure {
   zone: Zone;
   pressure: CrowdPressure;
 }
 
-const CATEGORY_OPTIONS: { value: AssetCategory; label: string }[] = [
-  { value: 'MEDICAL', label: 'Medical facility' },
-  { value: 'TOILET', label: 'Toilet' },
-  { value: 'WATER_POINT', label: 'Water point' },
-  { value: 'PARKING', label: 'Parking' },
-  { value: 'POLICE', label: 'Police post' },
-  { value: 'FIRE', label: 'Fire post' },
-  { value: 'GHAT', label: 'Ghat' },
-  { value: 'BRIDGE', label: 'Bridge' }
+const CATEGORY_OPTIONS: { value: AssetCategory; labelKey: DictionaryKey }[] = [
+  { value: 'MEDICAL', labelKey: 'catMedicalFacility' },
+  { value: 'TOILET', labelKey: 'catToilet' },
+  { value: 'WATER_POINT', labelKey: 'catWaterPoint' },
+  { value: 'PARKING', labelKey: 'catParking' },
+  { value: 'POLICE', labelKey: 'catPolicePost' },
+  { value: 'FIRE', labelKey: 'catFirePost' },
+  { value: 'GHAT', labelKey: 'catGhat' },
+  { value: 'BRIDGE', labelKey: 'catBridge' }
 ];
+
+const ROUTE_LABEL_KEYS: Record<'Fastest' | 'Safest' | 'Lowest Crowd', DictionaryKey> = {
+  Fastest: 'routeFastest',
+  Safest: 'routeSafest',
+  'Lowest Crowd': 'routeLowestCrowd'
+};
 
 const WALK_SPEED_MPS = 1.1;
 
@@ -96,7 +103,7 @@ export default function NavigationPage() {
       <AsyncState status={zonesApi.status} errorMessage={zonesApi.errorMessage} onRetry={zonesApi.retry}>
         <div className="paper-card mb-4 flex flex-wrap items-end gap-4 p-4">
           <label className="text-sm text-paper-muted">
-            From sector
+            {t('navFromSector')}
             <select
               value={fromZoneId || fromZone?.id || ''}
               onChange={(e) => {
@@ -113,46 +120,52 @@ export default function NavigationPage() {
             </select>
           </label>
           <label className="text-sm text-paper-muted">
-            Looking for
+            {t('navLookingFor')}
             <select value={category} onChange={(e) => setCategory(e.target.value as AssetCategory)} className="mt-1 block rounded-md border border-paper-border bg-paper-surface px-3 py-1.5 text-sm text-paper-text">
               {CATEGORY_OPTIONS.map((c) => (
                 <option key={c.value} value={c.value}>
-                  {c.label}
+                  {t(c.labelKey)}
                 </option>
               ))}
             </select>
           </label>
           <button
             onClick={location.request}
-            title="Uses your real device location — your browser will ask to confirm."
+            title={t('navUseLocationTitle')}
             className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
               usingRealLocation ? 'border-risk-normal/40 bg-risk-normal/10 text-risk-normal' : 'border-paper-border text-paper-muted hover:bg-paper-bg'
             }`}
           >
             <LocateFixed size={13} />
-            {location.status === 'requesting' ? 'Locating…' : usingRealLocation ? 'Using your location' : 'Use my location'}
+            {location.status === 'requesting' ? t('navLocating') : usingRealLocation ? t('navUsingLocation') : t('navUseMyLocation')}
           </button>
         </div>
         {(location.status === 'denied' || location.status === 'unavailable' || location.status === 'timeout' || location.status === 'insecure') && (
           <p className="-mt-2 mb-4 text-xs text-risk-critical">
-            {location.status === 'denied' && "Location permission denied — pick your sector manually, or allow location in your browser's site settings and try again."}
-            {location.status === 'unavailable' && "Couldn't determine your location — this usually means your OS location service is off, not an app problem. Pick your sector manually for now."}
-            {location.status === 'timeout' && 'Location request timed out — pick your sector manually, or try again.'}
-            {location.status === 'insecure' && 'This page needs HTTPS for location to work — pick your sector manually.'}
-            {location.errorDetail && <span className="block text-paper-faint">Browser said: "{location.errorDetail}"</span>}
+            {location.status === 'denied' && t('navDeniedMsg')}
+            {location.status === 'unavailable' && t('navUnavailableMsg')}
+            {location.status === 'timeout' && t('navTimeoutMsg')}
+            {location.status === 'insecure' && t('navInsecureMsg')}
+            {location.errorDetail && (
+              <span className="block text-paper-faint">
+                {t('sosBrowserSaid')}: "{location.errorDetail}"
+              </span>
+            )}
           </p>
         )}
 
         {!options ? (
-          <div className="paper-card p-5 text-sm text-paper-muted">No matching facilities found for this category.</div>
+          <div className="paper-card p-5 text-sm text-paper-muted">{t('navNoFacilities')}</div>
         ) : (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             {options.map((route) => (
               <div key={route.label} className="paper-card p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-brand-600">{route.label}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-brand-600">
+                  {t(ROUTE_LABEL_KEYS[route.label as keyof typeof ROUTE_LABEL_KEYS])}
+                </p>
                 <p className="mt-2 text-sm font-semibold text-paper-text">{route.facility.name}</p>
                 <p className="mt-1 text-sm text-paper-muted">
-                  {formatDistance(route.distanceMeters)} · ~{route.minutes} min walk
+                  {formatDistance(route.distanceMeters)} · ~{route.minutes} {t('navMinWalk')}
                 </p>
                 {route.pressure && (
                   <div className="mt-2">

@@ -4,18 +4,18 @@ import { useState } from 'react';
 import { AlertTriangle, Phone, Ambulance, MapPin, X, ExternalLink } from 'lucide-react';
 import { useLanguage } from '@/components/layout/LanguageProvider';
 import { useLocation } from '@/components/layout/LocationProvider';
+import type { DictionaryKey } from '@/lib/i18n/dictionary';
 
 type ShareState = 'idle' | 'sharing' | 'shared' | 'copied' | 'denied' | 'unavailable' | 'timeout' | 'unsupported';
 
-const SHARE_LABEL: Record<ShareState, string> = {
-  idle: '',
-  sharing: 'Getting your location…',
-  shared: 'Shared',
-  copied: 'Google Maps link copied',
-  denied: 'Location permission denied — enable it in your browser/site settings',
-  unavailable: "Couldn't determine your location — try again outdoors or with GPS on",
-  timeout: 'Location request timed out — try again',
-  unsupported: 'Geolocation is not supported on this device'
+const SHARE_LABEL_KEY: Record<Exclude<ShareState, 'idle'>, DictionaryKey> = {
+  sharing: 'shareGetting',
+  shared: 'shareShared',
+  copied: 'shareCopied',
+  denied: 'shareDenied',
+  unavailable: 'shareUnavailable',
+  timeout: 'shareTimeout',
+  unsupported: 'shareUnsupported'
 };
 
 function googleMapsUrl(lat: number, lng: number): string {
@@ -115,23 +115,17 @@ export function SosModal({ onClose }: { onClose: () => void }) {
             className="flex w-full items-center justify-center gap-2 rounded-lg border border-paper-border py-3 text-sm font-semibold text-paper-text transition hover:bg-paper-bg disabled:opacity-60"
           >
             <MapPin size={16} />
-            {shareState === 'idle' ? t('sosShareLocation') : SHARE_LABEL[shareState]}
+            {shareState === 'idle' ? t('sosShareLocation') : t(SHARE_LABEL_KEY[shareState])}
           </button>
           {(shareState === 'denied' || shareState === 'unavailable' || shareState === 'timeout') && (
             <div className="rounded-lg bg-risk-critical/5 p-2.5 text-[11px] leading-snug text-paper-muted">
-              {errorDetail && <p>Browser said: “{errorDetail}”</p>}
-              {shareState === 'unavailable' && (
-                <p className="mt-1">
-                  Usually means your OS location service is off. Windows: Settings → Privacy &amp; security → Location. macOS: System Settings → Privacy &amp; Security →
-                  Location Services.
+              {errorDetail && (
+                <p>
+                  {t('sosBrowserSaid')}: “{errorDetail}”
                 </p>
               )}
-              {shareState === 'denied' && (
-                <p className="mt-1">
-                  Click the 🔒 icon in your address bar → Site settings → Location → Allow (Chrome/Edge), or Settings → Site settings → Location on this site
-                  (Chrome Android), then try again. It won&apos;t prompt again on its own once blocked.
-                </p>
-              )}
+              {shareState === 'unavailable' && <p className="mt-1">{t('sosUnavailableHint')}</p>}
+              {shareState === 'denied' && <p className="mt-1">{t('sosDeniedHint')}</p>}
             </div>
           )}
           {mapsUrl && (
@@ -141,7 +135,7 @@ export function SosModal({ onClose }: { onClose: () => void }) {
               rel="noreferrer"
               className="flex items-center justify-center gap-1.5 text-xs text-brand-600 underline underline-offset-2"
             >
-              <ExternalLink size={12} /> Open my location in Google Maps
+              <ExternalLink size={12} /> {t('sosOpenMaps')}
             </a>
           )}
           <button onClick={onClose} className="w-full rounded-lg border border-paper-border py-3 text-sm font-semibold text-paper-text transition hover:bg-paper-bg">

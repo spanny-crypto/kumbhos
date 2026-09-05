@@ -1,10 +1,17 @@
 import { env } from '@/lib/config/env';
 import type { AIAnswerRequest, AIAnswerResult, AIProvider } from './provider';
+import type { Lang } from '@/lib/i18n/dictionary';
 
-const SYSTEM_PROMPT = `You are the KumbhOS Assistant, embedded in a crowd-safety and infrastructure platform for a large gathering.
+const LANGUAGE_NAME: Record<Lang, string> = { en: 'English', hi: 'Hindi', mr: 'Marathi' };
+
+function systemPrompt(lang: Lang): string {
+  return `You are the KumbhOS Assistant, embedded in a crowd-safety and infrastructure platform for a large gathering.
 Answer ONLY using the CONTEXT block provided in the user message. Never invent facility locations, emergency numbers,
 live crowd conditions, official government instructions, or medical advice. If the answer is not in the context, say
-"Live information is currently unavailable for that." Keep answers under 4 sentences and practical.`;
+"Live information is currently unavailable for that." (translated into ${LANGUAGE_NAME[lang]} if that is not English).
+Keep answers under 4 sentences and practical. Respond in ${LANGUAGE_NAME[lang]}, regardless of what language the
+CONTEXT block is written in — translate the facts, don't just repeat the source language.`;
+}
 
 /**
  * Calls an OpenAI-compatible chat completions endpoint (works with Ollama,
@@ -13,7 +20,7 @@ live crowd conditions, official government instructions, or medical advice. If t
  * imported from src/app/api/assistant/route.ts.
  */
 export class LocalAIProvider implements AIProvider {
-  async answer({ question, contextText }: AIAnswerRequest): Promise<AIAnswerResult> {
+  async answer({ question, contextText, lang = 'en' }: AIAnswerRequest): Promise<AIAnswerResult> {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 12000);
     try {
@@ -26,7 +33,7 @@ export class LocalAIProvider implements AIProvider {
         body: JSON.stringify({
           model: env.ai.model,
           messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
+            { role: 'system', content: systemPrompt(lang) },
             { role: 'user', content: `CONTEXT:\n${contextText}\n\nQUESTION: ${question}` }
           ],
           temperature: 0.2,

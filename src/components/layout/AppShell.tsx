@@ -27,7 +27,7 @@ import {
 import { useLanguage } from './LanguageProvider';
 import { useLocation } from './LocationProvider';
 import { SosModal } from '@/components/emergency/SosModal';
-import type { DictionaryKey } from '@/lib/i18n/dictionary';
+import { LANG_LABELS, type DictionaryKey, type Lang } from '@/lib/i18n/dictionary';
 
 const NAV_ITEMS: { href: string; labelKey: DictionaryKey; icon: typeof LayoutDashboard }[] = [
   { href: '/', labelKey: 'navHome', icon: LayoutDashboard },
@@ -47,7 +47,7 @@ const NAV_ITEMS: { href: string; labelKey: DictionaryKey; icon: typeof LayoutDas
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { lang, toggle, t } = useLanguage();
+  const { lang, setLang, t } = useLanguage();
   const location = useLocation();
   const [sosOpen, setSosOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -146,13 +146,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                             ? 'Needs HTTPS'
                             : t('enableTracking')}
             </button>
-            <button
-              onClick={toggle}
-              className="flex items-center gap-1.5 rounded-full border border-paper-border px-3 py-1.5 text-xs font-medium text-paper-muted transition hover:bg-paper-bg"
-            >
+            <label className="fast-transition flex items-center gap-1.5 rounded-full border border-paper-border px-3 py-1.5 text-xs font-medium text-paper-muted hover:bg-paper-bg">
               <Globe size={13} />
-              {lang === 'en' ? 'मराठी' : 'English'}
-            </button>
+              <select
+                aria-label={t('language')}
+                value={lang}
+                onChange={(e) => setLang(e.target.value as Lang)}
+                className="cursor-pointer bg-transparent text-xs font-medium text-paper-muted outline-none"
+              >
+                {(Object.keys(LANG_LABELS) as Lang[]).map((code) => (
+                  <option key={code} value={code}>
+                    {LANG_LABELS[code]}
+                  </option>
+                ))}
+              </select>
+            </label>
             <button
               onClick={() => setSosOpen(true)}
               className="flex items-center gap-1.5 rounded-full bg-risk-intervention px-3.5 py-1.5 text-xs font-bold text-white transition hover:opacity-90"

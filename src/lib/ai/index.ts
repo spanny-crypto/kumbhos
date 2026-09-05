@@ -1,6 +1,7 @@
 import { isAiConfigured } from '@/lib/config/env';
 import { getDataProvider } from '@/lib/data';
 import type { GeoPoint } from '@/lib/data/types';
+import type { Lang } from '@/lib/i18n/dictionary';
 import { retrieveContext } from './retrieval';
 import { FallbackAIProvider } from './fallbackProvider';
 
@@ -16,20 +17,20 @@ export interface AssistantAnswer {
  * AI isn't configured or fails). The AI, when used, only ever phrases the
  * retrieved facts — it cannot introduce information outside the context.
  */
-export async function answerAssistantQuestion(question: string, near?: GeoPoint): Promise<AssistantAnswer> {
+export async function answerAssistantQuestion(question: string, near?: GeoPoint, lang: Lang = 'en'): Promise<AssistantAnswer> {
   const data = getDataProvider();
-  const { contextText, matchedTopics } = await retrieveContext(question, data, near);
+  const { contextText, matchedTopics } = await retrieveContext(question, data, near, lang);
 
   if (isAiConfigured()) {
     try {
       const { LocalAIProvider } = await import('./localProvider');
-      const result = await new LocalAIProvider().answer({ question, contextText });
+      const result = await new LocalAIProvider().answer({ question, contextText, lang });
       return { ...result, matchedTopics };
     } catch (err) {
       console.error('[KumbhOS] AI provider failed, falling back to grounded context:', err instanceof Error ? err.message : err);
     }
   }
 
-  const result = await new FallbackAIProvider().answer({ question, contextText });
+  const result = await new FallbackAIProvider().answer({ question, contextText, lang });
   return { ...result, matchedTopics };
 }
