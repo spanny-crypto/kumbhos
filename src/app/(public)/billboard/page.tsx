@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useApi } from '@/hooks/useApi';
 import { AsyncState } from '@/components/common/AsyncState';
 import { ProblemCarousel } from '@/components/billboard/ProblemCarousel';
-import type { BillboardEntry } from '@/app/api/billboard/route';
+import type { BillboardEntry } from '@/lib/data/billboardTypes';
 
 function useClock() {
   // Starts null so server and first client render match exactly (both

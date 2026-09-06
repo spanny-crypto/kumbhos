@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import type { BillboardEntry } from '@/app/api/billboard/route';
+import type { BillboardEntry } from '@/lib/data/billboardTypes';
 
 const AUTO_ADVANCE_MS = 6000;
 

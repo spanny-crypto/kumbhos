@@ -147,6 +147,8 @@ export const dictionary = {
   formSaving: { en: 'Saving…', hi: 'सहेजा जा रहा है…', mr: 'जतन करत आहे…' },
 
   wordRisk: { en: 'risk', hi: 'जोखिम', mr: 'धोका' },
+  mapViewCrowd: { en: 'Crowd zones', hi: 'भीड़ क्षेत्र', mr: 'गर्दी विभाग' },
+  mapViewInfra: { en: 'Nashik infrastructure', hi: 'नाशिक अवसंरचना', mr: 'नाशिक पायाभूत सुविधा' },
   filterAll: { en: 'All', hi: 'सभी', mr: 'सर्व' },
   labelPublisher: { en: 'Publisher', hi: 'प्रकाशक', mr: 'प्रकाशक' },
   labelSource: { en: 'Source', hi: 'स्रोत', mr: 'स्रोत' },

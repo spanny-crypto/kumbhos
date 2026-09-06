@@ -4,20 +4,11 @@ import { predictCrowdPressure } from '@/lib/risk/prediction';
 import { apiSuccess } from '@/lib/http/apiResponse';
 import { withApiErrors } from '@/lib/http/guard';
 import type { IncidentSeverity, RiskLevel } from '@/lib/data/types';
+import type { BillboardEntry, BillboardSeverity } from '@/lib/data/billboardTypes';
 
 export const dynamic = 'force-dynamic';
 
-export type BillboardSeverity = 'INFO' | 'WATCH' | 'WARNING' | 'CRITICAL';
-
-export interface BillboardEntry {
-  id: string;
-  severity: BillboardSeverity;
-  category: 'CROWD' | 'INCIDENT' | 'SIMULATION';
-  zoneName: string;
-  headline: string;
-  detail: string;
-  timestamp: string;
-}
+export type { BillboardEntry, BillboardSeverity };
 
 const ZONE_LEVEL_SEVERITY: Record<RiskLevel, BillboardSeverity | null> = {
   NORMAL: null,

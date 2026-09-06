@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">KumbhOS</string>
+    <string name="title_activity_main">KumbhOS</string>
+    <string name="package_name">com.kumbhos.app</string>
+    <string name="custom_url_scheme">com.kumbhos.app</string>
+</resources>

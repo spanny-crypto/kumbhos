@@ -8,3 +8,15 @@ npm-debug.log*
 *.tsbuildinfo
 next-env.d.ts
 .vercel
+
+# Local Netlify folder
+.netlify
+.next-app
+.app-build-parked
+mobile/node_modules
+mobile/www
+mobile/android/build
+mobile/android/app/build
+mobile/android/.gradle
+mobile/.netlify
+deno.lock
