@@ -104,7 +104,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-paper-border bg-paper-surface/90 px-4 py-3 backdrop-blur">
+        <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-paper-border bg-paper-surface/70 px-4 py-3 backdrop-blur-md backdrop-saturate-150">
           <div className="flex items-center gap-2 md:hidden">
             <button onClick={() => setMenuOpen((v) => !v)} aria-label="Menu" className="rounded-lg p-1.5 text-paper-muted hover:bg-paper-bg">
               {menuOpen ? <X size={20} /> : <Menu size={20} />}

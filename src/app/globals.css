@@ -30,10 +30,35 @@ html, body {
 
 /* Light "paper" card — public portal shell. Shadow is intentionally barely
    visible (matching the reference site's 1px 1px 3px @ 10% opacity) rather
-   than a typical heavy SaaS drop-shadow. */
+   than a typical heavy SaaS drop-shadow. A gentle hover lift + soft glow is
+   the one glassmorphism accent applied to the everyday card, kept subtle so
+   dense list pages (incidents, water quality, lost & found) don't feel busy. */
 .paper-card {
   @apply rounded-xl border border-paper-border bg-paper-surface;
   box-shadow: 1px 1px 3px rgba(26, 26, 26, 0.08);
+  transition:
+    transform 160ms ease-out,
+    box-shadow 160ms ease-out,
+    border-color 160ms ease-out;
+}
+.paper-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(168, 107, 209, 0.35); /* brand-500 tint */
+  box-shadow:
+    0 8px 24px rgba(26, 26, 26, 0.08),
+    0 1px 2px rgba(26, 26, 26, 0.06);
+}
+
+/* Frosted-glass panel — used for surfaces that float over dimmed/backdrop
+   content (the SOS modal, the sticky topbar) where the blur is actually
+   visible against whatever's behind it. Not used for ordinary page cards —
+   see .paper-card above — since blur only reads as "glass" over varied
+   content, not over the flat page background. */
+.glass-panel {
+  background: rgba(247, 246, 238, 0.72);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
 }
 
 .pill {
