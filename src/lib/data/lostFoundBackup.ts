@@ -2,6 +2,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { env, isSupabaseConfigured } from '@/lib/config/env';
 import type { LostFoundCase } from './types';
 import type { CreateLostFoundInput } from './provider';
+import { supabaseTimeoutSignal } from './supabaseTimeout';
 
 // Backs ONLY the Lost & Found feature with real, persistent Supabase
 // storage — every other feature in KumbhOS (zones, incidents, volunteers,
@@ -50,18 +51,22 @@ export const lostFoundBackup = {
 
   async list(): Promise<LostFoundCase[] | null> {
     if (!isSupabaseConfigured()) return null;
+    const { signal, clear } = supabaseTimeoutSignal();
     try {
-      const { data, error } = await getClient().from('lost_found_cases').select('*').order('reported_at', { ascending: false });
+      const { data, error } = await getClient().from('lost_found_cases').select('*').order('reported_at', { ascending: false }).abortSignal(signal);
       if (error) throw error;
       return (data as LostFoundRow[]).map(rowToCase);
     } catch (err) {
       console.error('[KumbhOS] Supabase Lost & Found read failed, falling back to demo data:', err instanceof Error ? err.message : err);
       return null;
+    } finally {
+      clear();
     }
   },
 
   async create(input: CreateLostFoundInput): Promise<LostFoundCase | null> {
     if (!isSupabaseConfigured()) return null;
+    const { signal, clear } = supabaseTimeoutSignal();
     try {
       const { data, error } = await getClient()
         .from('lost_found_cases')
@@ -74,24 +79,30 @@ export const lostFoundBackup = {
           data_source: 'USER_REPORTED'
         })
         .select('*')
+        .abortSignal(signal)
         .single();
       if (error) throw error;
       return rowToCase(data as LostFoundRow);
     } catch (err) {
       console.error('[KumbhOS] Supabase Lost & Found write failed, falling back to demo data:', err instanceof Error ? err.message : err);
       return null;
+    } finally {
+      clear();
     }
   },
 
   async updateStatus(id: string, status: LostFoundCase['status']): Promise<LostFoundCase | null> {
     if (!isSupabaseConfigured()) return null;
+    const { signal, clear } = supabaseTimeoutSignal();
     try {
-      const { data, error } = await getClient().from('lost_found_cases').update({ status }).eq('id', id).select('*').maybeSingle();
+      const { data, error } = await getClient().from('lost_found_cases').update({ status }).eq('id', id).select('*').abortSignal(signal).maybeSingle();
       if (error) throw error;
       return data ? rowToCase(data as LostFoundRow) : null;
     } catch (err) {
       console.error('[KumbhOS] Supabase Lost & Found update failed, falling back to demo data:', err instanceof Error ? err.message : err);
       return null;
+    } finally {
+      clear();
     }
   }
 };

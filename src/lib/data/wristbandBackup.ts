@@ -3,6 +3,7 @@ import { env, isSupabaseConfigured } from '@/lib/config/env';
 import type { WristbandProfile, WristbandStatus } from './types';
 import type { CreateWristbandInput } from './provider';
 import { generateShortCode } from '@/lib/utils/id';
+import { supabaseTimeoutSignal } from './supabaseTimeout';
 
 // Backs the ID Wristband feature with real, persistent Supabase storage —
 // same pattern as lostFoundBackup.ts. This one matters even more than Lost
@@ -57,30 +58,37 @@ export const wristbandBackup = {
 
   async list(): Promise<WristbandProfile[] | null> {
     if (!isSupabaseConfigured()) return null;
+    const { signal, clear } = supabaseTimeoutSignal();
     try {
-      const { data, error } = await getClient().from('wristband_profiles').select('*').order('created_at', { ascending: false });
+      const { data, error } = await getClient().from('wristband_profiles').select('*').order('created_at', { ascending: false }).abortSignal(signal);
       if (error) throw error;
       return (data as WristbandRow[]).map(rowToProfile);
     } catch (err) {
       console.error('[KumbhOS] Supabase Wristband read failed, falling back to demo data:', err instanceof Error ? err.message : err);
       return null;
+    } finally {
+      clear();
     }
   },
 
   async get(id: string): Promise<WristbandProfile | null> {
     if (!isSupabaseConfigured()) return null;
+    const { signal, clear } = supabaseTimeoutSignal();
     try {
-      const { data, error } = await getClient().from('wristband_profiles').select('*').eq('id', id).maybeSingle();
+      const { data, error } = await getClient().from('wristband_profiles').select('*').eq('id', id).abortSignal(signal).maybeSingle();
       if (error) throw error;
       return data ? rowToProfile(data as WristbandRow) : null;
     } catch (err) {
       console.error('[KumbhOS] Supabase Wristband read failed, falling back to demo data:', err instanceof Error ? err.message : err);
       return null;
+    } finally {
+      clear();
     }
   },
 
   async create(input: CreateWristbandInput): Promise<WristbandProfile | null> {
     if (!isSupabaseConfigured()) return null;
+    const { signal, clear } = supabaseTimeoutSignal();
     try {
       const { data, error } = await getClient()
         .from('wristband_profiles')
@@ -96,24 +104,30 @@ export const wristbandBackup = {
           data_source: 'USER_REPORTED'
         })
         .select('*')
+        .abortSignal(signal)
         .single();
       if (error) throw error;
       return rowToProfile(data as WristbandRow);
     } catch (err) {
       console.error('[KumbhOS] Supabase Wristband write failed, falling back to demo data:', err instanceof Error ? err.message : err);
       return null;
+    } finally {
+      clear();
     }
   },
 
   async updateStatus(id: string, status: WristbandStatus): Promise<WristbandProfile | null> {
     if (!isSupabaseConfigured()) return null;
+    const { signal, clear } = supabaseTimeoutSignal();
     try {
-      const { data, error } = await getClient().from('wristband_profiles').update({ status }).eq('id', id).select('*').maybeSingle();
+      const { data, error } = await getClient().from('wristband_profiles').update({ status }).eq('id', id).select('*').abortSignal(signal).maybeSingle();
       if (error) throw error;
       return data ? rowToProfile(data as WristbandRow) : null;
     } catch (err) {
       console.error('[KumbhOS] Supabase Wristband update failed, falling back to demo data:', err instanceof Error ? err.message : err);
       return null;
+    } finally {
+      clear();
     }
   }
 };
