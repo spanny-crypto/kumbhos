@@ -3,46 +3,26 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  LayoutDashboard,
-  Radio,
-  Map as MapIcon,
-  Users,
-  Route,
-  Building2,
-  Siren,
-  Search,
-  CalendarDays,
-  Bot,
-  Database,
-  Droplets,
-  Globe,
-  Navigation as NavigationIcon,
-  ShieldAlert,
-  Waves,
-  QrCode,
-  Menu,
-  X
-} from 'lucide-react';
+import { Globe, Navigation as NavigationIcon, ShieldAlert, Waves, Menu, X } from 'lucide-react';
 import { useLanguage } from './LanguageProvider';
 import { useLocation } from './LocationProvider';
 import { SosModal } from '@/components/emergency/SosModal';
 import { LANG_LABELS, type DictionaryKey, type Lang } from '@/lib/i18n/dictionary';
 
-const NAV_ITEMS: { href: string; labelKey: DictionaryKey; icon: typeof LayoutDashboard }[] = [
-  { href: '/', labelKey: 'navHome', icon: LayoutDashboard },
-  { href: '/billboard', labelKey: 'navBillboard', icon: Radio },
-  { href: '/live-map', labelKey: 'navLiveMap', icon: MapIcon },
-  { href: '/crowd', labelKey: 'navCrowd', icon: Users },
-  { href: '/navigation', labelKey: 'navNavigation', icon: Route },
-  { href: '/facilities', labelKey: 'navFacilities', icon: Building2 },
-  { href: '/water-quality', labelKey: 'navWaterQuality', icon: Droplets },
-  { href: '/wristband', labelKey: 'navWristband', icon: QrCode },
-  { href: '/emergency', labelKey: 'navEmergency', icon: Siren },
-  { href: '/lost-found', labelKey: 'navLostFound', icon: Search },
-  { href: '/events', labelKey: 'navEvents', icon: CalendarDays },
-  { href: '/assistant', labelKey: 'navAssistant', icon: Bot },
-  { href: '/data-sources', labelKey: 'navDataSources', icon: Database }
+const NAV_ITEMS: { href: string; labelKey: DictionaryKey; emoji: string }[] = [
+  { href: '/', labelKey: 'navHome', emoji: '📊' },
+  { href: '/billboard', labelKey: 'navBillboard', emoji: '📡' },
+  { href: '/live-map', labelKey: 'navLiveMap', emoji: '🗺️' },
+  { href: '/crowd', labelKey: 'navCrowd', emoji: '👥' },
+  { href: '/navigation', labelKey: 'navNavigation', emoji: '🧭' },
+  { href: '/facilities', labelKey: 'navFacilities', emoji: '🏢' },
+  { href: '/water-quality', labelKey: 'navWaterQuality', emoji: '💧' },
+  { href: '/wristband', labelKey: 'navWristband', emoji: '🆔' },
+  { href: '/emergency', labelKey: 'navEmergency', emoji: '🚨' },
+  { href: '/lost-found', labelKey: 'navLostFound', emoji: '🔍' },
+  { href: '/events', labelKey: 'navEvents', emoji: '📅' },
+  { href: '/assistant', labelKey: 'navAssistant', emoji: '🤖' },
+  { href: '/data-sources', labelKey: 'navDataSources', emoji: '🗂️' }
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -79,7 +59,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
         <nav className="scrollbar-thin flex-1 space-y-0.5 overflow-y-auto p-2">
-          {NAV_ITEMS.map(({ href, labelKey, icon: Icon }) => {
+          {NAV_ITEMS.map(({ href, labelKey, emoji }) => {
             const active = pathname === href;
             return (
               <Link
@@ -89,7 +69,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   active ? 'bg-brand-50 font-semibold text-brand-700' : 'text-paper-muted hover:bg-paper-bg hover:text-paper-text'
                 }`}
               >
-                <Icon size={17} />
+                <span className="text-base" aria-hidden="true">{emoji}</span>
                 {t(labelKey)}
               </Link>
             );
@@ -225,7 +205,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         {menuOpen && (
           <nav className="scrollbar-thin max-h-[70vh] overflow-y-auto border-b border-paper-border bg-paper-surface p-2 md:hidden">
-            {NAV_ITEMS.map(({ href, labelKey, icon: Icon }) => {
+            {NAV_ITEMS.map(({ href, labelKey, emoji }) => {
               const active = pathname === href;
               return (
                 <Link
@@ -236,7 +216,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     active ? 'bg-brand-50 font-semibold text-brand-700' : 'text-paper-muted hover:bg-paper-bg'
                   }`}
                 >
-                  <Icon size={17} />
+                  <span className="text-base" aria-hidden="true">{emoji}</span>
                   {t(labelKey)}
                 </Link>
               );

@@ -355,6 +355,11 @@ export const dictionary = {
   chatSuggestion3: { en: 'Where is the nearest medical facility?', hi: 'निकटतम चिकित्सा सुविधा कहां है?', mr: 'जवळची वैद्यकीय सुविधा कुठे आहे?' },
   chatSuggestion4: { en: 'My grandmother is walking slowly, which route should we take?', hi: 'मेरी दादी धीरे चल रही हैं, हमें कौन सा रास्ता लेना चाहिए?', mr: 'माझी आजी हळू चालत आहे, आम्ही कोणता मार्ग घ्यावा?' },
   chatSuggestion5: { en: 'What events are happening today?', hi: 'आज कौन से कार्यक्रम हो रहे हैं?', mr: 'आज कोणते कार्यक्रम होत आहेत?' },
+  chatListening: { en: 'Listening…', hi: 'सुन रहा है…', mr: 'ऐकत आहे…' },
+  chatTapToSpeak: { en: 'Tap the mic and speak your question', hi: 'माइक पर टैप करें और अपना सवाल बोलें', mr: 'माइकवर टॅप करा आणि तुमचा प्रश्न बोला' },
+  chatVoiceOn: { en: 'Voice replies on', hi: 'आवाज़ में जवाब चालू', mr: 'आवाजात उत्तरे सुरू' },
+  chatVoiceOff: { en: 'Voice replies off', hi: 'आवाज़ में जवाब बंद', mr: 'आवाजात उत्तरे बंद' },
+  chatReadAloud: { en: 'Read aloud', hi: 'ज़ोर से पढ़ें', mr: 'मोठ्याने वाचा' },
 
   emptyNoData: { en: 'No data to show yet.', hi: 'अभी दिखाने के लिए कोई डेटा नहीं है.', mr: 'अजून दाखवण्यासाठी डेटा नाही.' },
   loading: { en: 'Loading…', hi: 'लोड हो रहा है…', mr: 'लोड होत आहे…' },

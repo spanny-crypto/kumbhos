@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertTriangle, Phone, Ambulance, MapPin, X, ExternalLink } from 'lucide-react';
+import { Phone, Ambulance, MapPin, X, ExternalLink } from 'lucide-react';
 import { useLanguage } from '@/components/layout/LanguageProvider';
 import { useLocation } from '@/components/layout/LocationProvider';
 import type { DictionaryKey } from '@/lib/i18n/dictionary';
@@ -88,7 +88,7 @@ export function SosModal({ onClose }: { onClose: () => void }) {
       <div className="glass-panel w-full max-w-sm rounded-2xl p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2 text-risk-intervention">
-            <AlertTriangle size={22} />
+            <span className="text-xl" aria-hidden="true">🚨</span>
             <h2 className="text-lg font-bold">{t('sosTitle')}</h2>
           </div>
           <button onClick={onClose} aria-label="Close" className="rounded-full p-1 text-paper-muted hover:bg-paper-bg">
@@ -101,12 +101,14 @@ export function SosModal({ onClose }: { onClose: () => void }) {
             href="tel:112"
             className="fast-transition flex items-center justify-center gap-2 rounded-lg bg-brand-200 py-3 text-sm font-semibold text-paper-text hover:bg-brand-300"
           >
+            <span className="text-xl" aria-hidden="true">🚓</span>
             <Phone size={16} /> {t('sosCallPolice')}
           </a>
           <a
             href="tel:108"
             className="flex items-center justify-center gap-2 rounded-lg bg-risk-intervention py-3 text-sm font-semibold text-white transition hover:opacity-90"
           >
+            <span className="text-xl" aria-hidden="true">🚑</span>
             <Ambulance size={16} /> {t('sosCallAmbulance')}
           </a>
           <button
@@ -114,6 +116,7 @@ export function SosModal({ onClose }: { onClose: () => void }) {
             disabled={shareState === 'sharing'}
             className="flex w-full items-center justify-center gap-2 rounded-lg border border-paper-border py-3 text-sm font-semibold text-paper-text transition hover:bg-paper-bg disabled:opacity-60"
           >
+            <span className="text-xl" aria-hidden="true">📍</span>
             <MapPin size={16} />
             {shareState === 'idle' ? t('sosShareLocation') : t(SHARE_LABEL_KEY[shareState])}
           </button>
@@ -138,7 +141,8 @@ export function SosModal({ onClose }: { onClose: () => void }) {
               <ExternalLink size={12} /> {t('sosOpenMaps')}
             </a>
           )}
-          <button onClick={onClose} className="w-full rounded-lg border border-paper-border py-3 text-sm font-semibold text-paper-text transition hover:bg-paper-bg">
+          <button onClick={onClose} className="flex w-full items-center justify-center gap-2 rounded-lg border border-paper-border py-3 text-sm font-semibold text-paper-text transition hover:bg-paper-bg">
+            <span className="text-xl" aria-hidden="true">❌</span>
             {t('sosCancel')}
           </button>
         </div>
