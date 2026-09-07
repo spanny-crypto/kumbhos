@@ -1,4 +1,5 @@
 import type { ApiFailure, ApiSuccess } from './apiResponse';
+import { IS_OFFLINE_APP, resolveOffline, resolveOfflineMutation } from '@/lib/data/offlineStore';
 
 export type ApiEnvelope<T> = ApiSuccess<T> | ApiFailure;
 
@@ -20,8 +21,28 @@ interface FetchOptions extends RequestInit {
  * client component that talks to our own /api routes. Centralizes timeout
  * + retry + envelope-unwrapping so components never see a raw
  * `TypeError: Failed to fetch`.
+ *
+ * In the packaged Android app (NEXT_PUBLIC_OFFLINE_APP) there is no server
+ * to call at all — every /api/* URL is resolved locally against the bundled
+ * snapshot (GET) or a local mutation handler (POST/PATCH), so this never
+ * touches the network. Without this branch, every write (asking the AI
+ * Assistant, creating a wristband, filing a Lost & Found report) would fail
+ * with "the server returned an unreadable response", since there's no server
+ * there to answer a real fetch() at all.
  */
 export async function fetchJSON<T>(url: string, options: FetchOptions = {}): Promise<T> {
+  if (IS_OFFLINE_APP && url.startsWith('/api/')) {
+    const method = (options.method ?? 'GET').toUpperCase();
+    try {
+      const data = method === 'GET' ? resolveOffline(url) : await resolveOfflineMutation(url, method, typeof options.body === 'string' ? options.body : undefined);
+      if (data === undefined) throw new FetchClientError('NOT_FOUND', 'Not available in the app.');
+      return data as T;
+    } catch (err) {
+      if (err instanceof FetchClientError) throw err;
+      throw new FetchClientError('VALIDATION_ERROR', err instanceof Error ? err.message : 'Something went wrong.');
+    }
+  }
+
   const { timeoutMs = 10000, retries = 1, ...init } = options;
   let lastError: unknown;
 

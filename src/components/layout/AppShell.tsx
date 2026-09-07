@@ -47,8 +47,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-screen bg-paper-bg">
-      <aside className="hidden w-60 shrink-0 flex-col border-r border-paper-border bg-paper-surface md:flex">
+    <div className="relative flex min-h-screen overflow-hidden bg-paper-bg">
+      {/* Soft, fixed color fields behind everything — glassmorphism reads as
+          "glass" only when there's something with shape/color underneath to
+          blur. A flat cream background gives every frosted panel nothing to
+          show, so these three blurred blobs (brand lavender / mint / coral,
+          all very low-opacity) sit behind the whole app, fixed so they don't
+          scroll away under a tall page. */}
+      <div className="pointer-events-none fixed inset-0 -z-10" aria-hidden="true">
+        <div className="absolute -left-24 -top-24 h-96 w-96 rounded-full bg-brand-300/30 blur-3xl" />
+        <div className="absolute right-0 top-1/3 h-80 w-80 rounded-full bg-chip-mint/20 blur-3xl" />
+        <div className="absolute bottom-0 left-1/3 h-96 w-96 rounded-full bg-chip-coral/15 blur-3xl" />
+      </div>
+
+      <aside className="glass-panel hidden w-60 shrink-0 flex-col border-r-0 md:flex">
         <div className="flex items-center gap-2 border-b border-paper-border px-4 py-4">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-500 text-white">
             <Waves size={18} />
@@ -228,13 +240,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         <footer className="border-t border-paper-border px-4 py-5 text-center text-xs text-paper-faint">
           <p>
-            KumbhOS Prototype · Demo/simulation data unless otherwise labeled · Not affiliated with any government authority ·{' '}
+            {t('footerLine')} ·{' '}
             <Link href="/data-sources" className="underline hover:text-paper-muted">
-              Data sources
+              {t('footerDataSources')}
             </Link>{' '}
             ·{' '}
             <Link href="/privacy" className="underline hover:text-paper-muted">
-              Privacy Policy
+              {t('pagePrivacyTitle')}
             </Link>
           </p>
           <p className="mt-1.5 text-sm font-bold text-paper-text">A SPANDAN PARAKH PRODUCTION</p>

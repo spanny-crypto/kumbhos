@@ -28,32 +28,39 @@ html, body {
   @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
 }
 
-/* Light "paper" card — public portal shell. Shadow is intentionally barely
-   visible (matching the reference site's 1px 1px 3px @ 10% opacity) rather
-   than a typical heavy SaaS drop-shadow. A gentle hover lift + soft glow is
-   the one glassmorphism accent applied to the everyday card, kept subtle so
-   dense list pages (incidents, water quality, lost & found) don't feel busy. */
+/* Every card is real frosted glass: translucent + blurred, so the three
+   soft color blobs fixed behind the app shell (see AppShell.tsx) show
+   through faintly. That's what makes glassmorphism actually read as glass
+   rather than "slightly see-through paint" — there has to be shape and
+   colour underneath for the blur to do anything visible. Shadow stays
+   understated so dense list pages (incidents, water quality, lost & found)
+   don't turn heavy. */
 .paper-card {
-  @apply rounded-xl border border-paper-border bg-paper-surface;
-  box-shadow: 1px 1px 3px rgba(26, 26, 26, 0.08);
+  @apply rounded-xl border;
+  background: rgba(247, 246, 238, 0.55);
+  border-color: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  box-shadow: 1px 1px 3px rgba(26, 26, 26, 0.06);
   transition:
     transform 160ms ease-out,
     box-shadow 160ms ease-out,
-    border-color 160ms ease-out;
+    border-color 160ms ease-out,
+    background-color 160ms ease-out;
 }
 .paper-card:hover {
   transform: translateY(-1px);
-  border-color: rgba(168, 107, 209, 0.35); /* brand-500 tint */
+  background: rgba(247, 246, 238, 0.72);
+  border-color: rgba(168, 107, 209, 0.4); /* brand-500 tint */
   box-shadow:
-    0 8px 24px rgba(26, 26, 26, 0.08),
+    0 8px 28px rgba(26, 26, 26, 0.10),
     0 1px 2px rgba(26, 26, 26, 0.06);
 }
 
-/* Frosted-glass panel — used for surfaces that float over dimmed/backdrop
-   content (the SOS modal, the sticky topbar) where the blur is actually
-   visible against whatever's behind it. Not used for ordinary page cards —
-   see .paper-card above — since blur only reads as "glass" over varied
-   content, not over the flat page background. */
+/* Stronger frosted-glass panel — for surfaces that float above the page
+   itself (the sidebar, the sticky topbar, modals) rather than sitting
+   inline in the content flow, so it wants a heavier blur/saturation than
+   an ordinary card to read as a distinct layer. */
 .glass-panel {
   background: rgba(247, 246, 238, 0.72);
   backdrop-filter: blur(20px) saturate(160%);

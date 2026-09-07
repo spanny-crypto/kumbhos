@@ -4,6 +4,12 @@ import { nearest, formatDistance } from '@/lib/utils/geo';
 import type { GeoPoint } from '@/lib/data/types';
 import type { Lang } from '@/lib/i18n/dictionary';
 
+// Narrowed to exactly what retrieval reads, rather than the full
+// DataProvider — that lets the offline (Android app) build satisfy this with
+// a handful of methods over its local snapshot instead of implementing every
+// write/CRUD method the full interface requires. See offlineStore.ts.
+export type RetrievalDataSource = Pick<DataProvider, 'getToilets' | 'getInfrastructure' | 'getResponseTeams' | 'getZones' | 'getEvents' | 'getAnnouncements'>;
+
 export interface RetrievalResult {
   contextText: string;
   matchedTopics: string[];
@@ -118,7 +124,7 @@ const T = {
  * sentence templates — the underlying facts (names, statuses) are seed
  * data and are not machine-translated here, see docs/ARCHITECTURE.md.
  */
-export async function retrieveContext(question: string, data: DataProvider, near?: GeoPoint, lang: Lang = 'en'): Promise<RetrievalResult> {
+export async function retrieveContext(question: string, data: RetrievalDataSource, near?: GeoPoint, lang: Lang = 'en'): Promise<RetrievalResult> {
   const topics: string[] = [];
   const lines: string[] = [];
   const origin = near ?? { lat: 25.4305, lng: 81.8809 };

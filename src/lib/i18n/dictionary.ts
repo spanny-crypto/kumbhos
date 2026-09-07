@@ -148,6 +148,18 @@ export const dictionary = {
 
   wordRisk: { en: 'risk', hi: 'जोखिम', mr: 'धोका' },
   mapViewCrowd: { en: 'Crowd zones', hi: 'भीड़ क्षेत्र', mr: 'गर्दी विभाग' },
+  announceWelcomeTitle: { en: 'Welcome to KumbhOS', hi: 'KumbhOS में आपका स्वागत है', mr: 'KumbhOS मध्ये आपले स्वागत आहे' },
+  announceWelcomeBody: {
+    en: 'This public portal shows live-style crowd, facility, and safety information for the gathering area.',
+    hi: 'यह सार्वजनिक पोर्टल मेला क्षेत्र के लिए लाइव-शैली की भीड़, सुविधा और सुरक्षा जानकारी दिखाता है.',
+    mr: 'हे सार्वजनिक पोर्टल मेळाव्याच्या क्षेत्रासाठी लाइव्ह-शैलीतील गर्दी, सुविधा आणि सुरक्षा माहिती दाखवते.'
+  },
+  announceDemoTitle: { en: 'Demo / Simulation Data', hi: 'डेमो / सिम्युलेशन डेटा', mr: 'डेमो / सिम्युलेशन डेटा' },
+  announceDemoBody: {
+    en: 'This deployment is running in demo mode. All crowd, incident, and infrastructure figures are synthetic prototype data, not live government feeds.',
+    hi: 'यह डिप्लॉयमेंट डेमो मोड में चल रहा है. सभी भीड़, घटना, और अवसंरचना आंकड़े सिंथेटिक प्रोटोटाइप डेटा हैं, लाइव सरकारी फीड नहीं.',
+    mr: 'ही डिप्लॉयमेंट डेमो मोडमध्ये चालू आहे. सर्व गर्दी, घटना, आणि पायाभूत सुविधांचे आकडे सिंथेटिक प्रोटोटाइप डेटा आहेत, लाइव्ह सरकारी फीड नाहीत.'
+  },
   mapViewInfra: { en: 'Nashik infrastructure', hi: 'नाशिक अवसंरचना', mr: 'नाशिक पायाभूत सुविधा' },
   filterAll: { en: 'All', hi: 'सभी', mr: 'सर्व' },
   labelPublisher: { en: 'Publisher', hi: 'प्रकाशक', mr: 'प्रकाशक' },
@@ -363,6 +375,14 @@ export const dictionary = {
   chatVoiceOff: { en: 'Voice replies off', hi: 'आवाज़ में जवाब बंद', mr: 'आवाजात उत्तरे बंद' },
   chatReadAloud: { en: 'Read aloud', hi: 'ज़ोर से पढ़ें', mr: 'मोठ्याने वाचा' },
 
+  loadingDashboard: { en: 'Loading dashboard…', hi: 'डैशबोर्ड लोड हो रहा है…', mr: 'डॅशबोर्ड लोड होत आहे…' },
+  footerLine: {
+    en: 'KumbhOS Prototype · Demo/simulation data unless otherwise labeled · Not affiliated with any government authority',
+    hi: 'KumbhOS प्रोटोटाइप · अन्यथा लेबल न किए जाने तक डेमो/सिम्युलेशन डेटा · किसी भी सरकारी प्राधिकरण से संबद्ध नहीं',
+    mr: 'KumbhOS प्रोटोटाइप · अन्यथा लेबल केल्याशिवाय डेमो/सिम्युलेशन डेटा · कोणत्याही सरकारी प्राधिकरणाशी संलग्न नाही'
+  },
+  footerDataSources: { en: 'Data sources', hi: 'डेटा स्रोत', mr: 'डेटा स्रोत' },
+  noAnnouncements: { en: 'No announcements right now.', hi: 'अभी कोई घोषणा नहीं है.', mr: 'सध्या कोणतीही घोषणा नाही.' },
   emptyNoData: { en: 'No data to show yet.', hi: 'अभी दिखाने के लिए कोई डेटा नहीं है.', mr: 'अजून दाखवण्यासाठी डेटा नाही.' },
   loading: { en: 'Loading…', hi: 'लोड हो रहा है…', mr: 'लोड होत आहे…' },
   retry: { en: 'Retry', hi: 'पुनः प्रयास करें', mr: 'पुन्हा प्रयत्न करा' }

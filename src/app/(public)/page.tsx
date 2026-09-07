@@ -6,6 +6,16 @@ import { AsyncState } from '@/components/common/AsyncState';
 import { StatCard, type CardStatus } from '@/components/dashboard/StatCard';
 import { useLanguage } from '@/components/layout/LanguageProvider';
 import type { Announcement } from '@/lib/data/types';
+import type { DictionaryKey } from '@/lib/i18n/dictionary';
+
+// The two seed announcements are fixed, app-authored copy (not third-party
+// data), so — unlike zone names or incident descriptions — they're
+// translated here rather than left in English. Any future/unknown
+// announcement id just falls back to its raw (English) title/body.
+const ANNOUNCEMENT_KEYS: Record<string, { title: DictionaryKey; body: DictionaryKey }> = {
+  'announce-1': { title: 'announceWelcomeTitle', body: 'announceWelcomeBody' },
+  'announce-2': { title: 'announceDemoTitle', body: 'announceDemoBody' }
+};
 
 interface DashboardSummary {
   crowd: { status: CardStatus; criticalZones: number; totalZones: number };
@@ -30,7 +40,7 @@ export default function DashboardPage() {
       <h1 className="heading-serif text-4xl text-paper-text">{t('dashboardTitle')}</h1>
       <p className="mt-1 text-sm text-paper-muted">{t('dashboardSubtitle')}</p>
 
-      <AsyncState status={summaryApi.status} errorMessage={summaryApi.errorMessage} onRetry={summaryApi.retry} loadingLabel="Loading dashboard…">
+      <AsyncState status={summaryApi.status} errorMessage={summaryApi.errorMessage} onRetry={summaryApi.retry} loadingLabel={t('loadingDashboard')}>
         {s && (
           <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard
@@ -54,14 +64,17 @@ export default function DashboardPage() {
 
       <div className="mt-8">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-paper-muted">{t('announcementsHeading')}</h2>
-        <AsyncState status={announcementsApi.status} errorMessage={announcementsApi.errorMessage} onRetry={announcementsApi.retry} emptyMessage="No announcements right now.">
+        <AsyncState status={announcementsApi.status} errorMessage={announcementsApi.errorMessage} onRetry={announcementsApi.retry} emptyMessage={t('noAnnouncements')}>
           <div className="space-y-2">
-            {(announcementsApi.data ?? []).map((a) => (
-              <div key={a.id} className="paper-card p-4">
-                <p className="text-sm font-semibold text-paper-text">{a.title}</p>
-                <p className="mt-1 text-sm text-paper-muted">{a.body}</p>
-              </div>
-            ))}
+            {(announcementsApi.data ?? []).map((a) => {
+              const keys = ANNOUNCEMENT_KEYS[a.id];
+              return (
+                <div key={a.id} className="paper-card p-4">
+                  <p className="text-sm font-semibold text-paper-text">{keys ? t(keys.title) : a.title}</p>
+                  <p className="mt-1 text-sm text-paper-muted">{keys ? t(keys.body) : a.body}</p>
+                </div>
+              );
+            })}
           </div>
         </AsyncState>
       </div>

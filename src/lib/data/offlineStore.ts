@@ -28,8 +28,13 @@ import { generateWaterQualityRecords } from './seed/waterQuality';
 import { computeCrowdPressure } from '@/lib/risk/pressureIndex';
 import { predictCrowdPressure } from '@/lib/risk/prediction';
 import { computeSanitationPressure } from '@/lib/risk/sanitationPressure';
-import type { AssetStatus, IncidentSeverity, InfrastructureAsset, RiskLevel, Toilet, WristbandProfile } from './types';
+import { generateResponseTeams } from './seed/generate';
+import { retrieveContext } from '@/lib/ai/retrieval';
+import { FallbackAIProvider } from '@/lib/ai/fallbackProvider';
+import { generateShortCode } from '@/lib/utils/id';
+import type { AssetStatus, IncidentSeverity, InfrastructureAsset, LostFoundCase, RiskLevel, Toilet, WristbandProfile, WristbandStatus } from './types';
 import type { BillboardEntry, BillboardSeverity } from './billboardTypes';
+import type { Lang } from '@/lib/i18n/dictionary';
 
 export const IS_OFFLINE_APP = process.env.NEXT_PUBLIC_OFFLINE_APP === 'true';
 
@@ -42,6 +47,7 @@ function buildSnapshot() {
   const infrastructure = generateInfrastructure(zones);
   const toilets = generateToilets(zones);
   const incidents = generateIncidents(zones);
+  const responseTeams = generateResponseTeams(zones);
   const volunteers = generateVolunteers(zones);
   const lostFound = generateLostFoundCases(zones);
   const facilities = generateFacilities(infrastructure);
@@ -69,6 +75,7 @@ function buildSnapshot() {
     toilets,
     sanitationPressure,
     incidents,
+    responseTeams,
     volunteers,
     lostFound,
     facilities,
@@ -218,6 +225,62 @@ export function findOfflineWristband(id: string): WristbandProfile | null {
   return readStoredWristbands().find((w) => w.id.toUpperCase() === id.toUpperCase()) ?? null;
 }
 
+function updateOfflineWristbandStatus(id: string, status: WristbandStatus): WristbandProfile | null {
+  const all = readStoredWristbands();
+  const idx = all.findIndex((w) => w.id.toUpperCase() === id.toUpperCase());
+  if (idx === -1) return null;
+  const updated = { ...all[idx]!, status };
+  all[idx] = updated;
+  try {
+    localStorage.setItem(WRISTBAND_STORAGE_KEY, JSON.stringify(all));
+  } catch {
+    // Non-fatal — the in-memory value below is still correct for this session.
+  }
+  return updated;
+}
+
+// Lost & Found reports created on-device — same "read-write local, seed data
+// read-only" split as wristbands above.
+const LOST_FOUND_STORAGE_KEY = 'kumbhos-offline-lost-found';
+
+function readStoredLostFound(): LostFoundCase[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(LOST_FOUND_STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as LostFoundCase[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveOfflineLostFoundCase(entry: LostFoundCase): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(LOST_FOUND_STORAGE_KEY, JSON.stringify([entry, ...readStoredLostFound()]));
+  } catch {
+    // Non-fatal — the report still shows for this session's list render.
+  }
+}
+
+// The AI Assistant's retrieval step only ever reads a handful of collections
+// (see RetrievalDataSource in lib/ai/retrieval.ts) — this satisfies exactly
+// that shape over the local snapshot, so the same grounded-answer logic used
+// server-side on the web runs unchanged here, with no network call at all.
+const retrievalDataSource = {
+  getToilets: async () => snapshot.toilets,
+  getInfrastructure: async () => snapshot.infrastructure,
+  getResponseTeams: async () => snapshot.responseTeams,
+  getZones: async () => snapshot.zones,
+  getEvents: async () => snapshot.events,
+  getAnnouncements: async () => snapshot.announcements
+};
+
+async function answerOffline(question: string, lang: Lang): Promise<{ answer: string; usedAi: boolean; matchedTopics: string[] }> {
+  const { contextText, matchedTopics } = await retrieveContext(question, retrievalDataSource, undefined, lang);
+  const result = await new FallbackAIProvider().answer({ question, contextText, lang });
+  return { ...result, matchedTopics };
+}
+
 /**
  * Maps an /api/* URL to its already-computed local result. Returns
  * `undefined` for anything not served offline, so callers can fall back.
@@ -245,7 +308,7 @@ export function resolveOffline(url: string): unknown | undefined {
     case '/api/water-quality':
       return snapshot.waterQuality;
     case '/api/lost-found':
-      return snapshot.lostFound;
+      return [...readStoredLostFound(), ...snapshot.lostFound];
     case '/api/billboard':
       return buildBillboard();
     case '/api/wristbands':
@@ -262,6 +325,72 @@ export function resolveOffline(url: string): unknown | undefined {
   }
 
   return undefined;
+}
+
+/**
+ * Offline equivalent of a POST/PATCH/DELETE against one of our /api routes —
+ * everything fetchJSON() routes here when IS_OFFLINE_APP is set, instead of
+ * making a real network call that has nothing to answer it in the packaged
+ * app. Mirrors each route handler's own validation closely enough to fail
+ * the same way, but never talks to a server.
+ */
+export async function resolveOfflineMutation(url: string, method: string, bodyText: string | undefined, lang: Lang = 'en'): Promise<unknown> {
+  const path = url.split('?')[0] ?? url;
+  const body = bodyText ? (JSON.parse(bodyText) as Record<string, unknown>) : {};
+
+  if (path === '/api/assistant' && method === 'POST') {
+    const question = typeof body.question === 'string' ? body.question.trim() : '';
+    if (!question) throw new Error('A question is required.');
+    const requestLang = (typeof body.lang === 'string' ? body.lang : lang) as Lang;
+    return answerOffline(question, requestLang);
+  }
+
+  if (path === '/api/wristbands' && method === 'POST') {
+    if (!body.fullName || !body.guardianName || !body.guardianPhone) {
+      throw new Error('fullName, guardianName, and guardianPhone are required.');
+    }
+    const profile: WristbandProfile = {
+      id: generateShortCode(),
+      fullName: body.fullName as string,
+      age: (body.age as number | null) ?? null,
+      guardianName: body.guardianName as string,
+      guardianPhone: body.guardianPhone as string,
+      meetingPointZoneId: (body.meetingPointZoneId as string | null) ?? null,
+      medicalNotes: (body.medicalNotes as string | null) ?? null,
+      status: 'ACTIVE',
+      createdAt: new Date().toISOString(),
+      dataSource: 'USER_REPORTED'
+    };
+    saveOfflineWristband(profile);
+    return profile;
+  }
+
+  const wristbandStatusMatch = path.match(/^\/api\/wristbands\/([^/]+)$/);
+  if (wristbandStatusMatch && method === 'PATCH') {
+    const updated = updateOfflineWristbandStatus(wristbandStatusMatch[1]!, body.status as WristbandStatus);
+    if (!updated) throw new Error('That wristband could not be found.');
+    return updated;
+  }
+
+  if (path === '/api/lost-found' && method === 'POST') {
+    if (!body.type || !body.approximateZoneId || !body.description || !body.contactInfo) {
+      throw new Error('type, approximateZoneId, description, and contactInfo are required.');
+    }
+    const entry: LostFoundCase = {
+      id: `case-${Date.now()}`,
+      type: body.type as LostFoundCase['type'],
+      status: 'OPEN',
+      approximateZoneId: body.approximateZoneId as string,
+      description: body.description as string,
+      reportedAt: new Date().toISOString(),
+      contactInfo: body.contactInfo as string,
+      dataSource: 'USER_REPORTED'
+    };
+    saveOfflineLostFoundCase(entry);
+    return entry;
+  }
+
+  throw new Error('This action needs an internet connection.');
 }
 
 export const offlineSnapshot = snapshot;
