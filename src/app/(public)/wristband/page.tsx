@@ -2,15 +2,13 @@
 
 import { useState } from 'react';
 import { ShieldCheck } from 'lucide-react';
-import { useApi } from '@/hooks/useApi';
 import { fetchJSON, FetchClientError } from '@/lib/http/fetchClient';
 import { WristbandCard } from '@/components/wristband/WristbandCard';
 import { useLanguage } from '@/components/layout/LanguageProvider';
-import type { WristbandProfile, Zone } from '@/lib/data/types';
+import { NASHIK_LANDMARKS } from '@/lib/data/nashikLandmarks';
+import type { WristbandProfile } from '@/lib/data/types';
 
 export default function WristbandPage() {
-  const zonesApi = useApi<{ zone: Zone }[]>('/api/zones');
-
   const [fullName, setFullName] = useState('');
   const [age, setAge] = useState('');
   const [guardianName, setGuardianName] = useState('');
@@ -21,8 +19,6 @@ export default function WristbandPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [created, setCreated] = useState<WristbandProfile | null>(null);
   const { t } = useLanguage();
-
-  const zones = zonesApi.data ?? [];
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -60,13 +56,12 @@ export default function WristbandPage() {
   }
 
   if (created) {
-    const zoneName = zones.find((z) => z.zone.id === created.meetingPointZoneId)?.zone.name ?? null;
     return (
       <div className="mx-auto max-w-3xl px-4 py-6">
         <h1 className="heading-serif text-3xl text-paper-text">{t('wbReadyTitle')}</h1>
         <p className="mt-1 text-sm text-paper-muted">{t('wbReadySubtitle')}</p>
         <div className="paper-card mt-4 p-5">
-          <WristbandCard profile={created} zoneName={zoneName} />
+          <WristbandCard profile={created} zoneName={created.meetingPointZoneId} />
         </div>
         <button onClick={reset} className="fast-transition mt-4 rounded-md border border-paper-border px-4 py-2 text-sm font-medium text-paper-text hover:bg-paper-bg">
           {t('wbMakeAnother')}
@@ -143,9 +138,9 @@ export default function WristbandPage() {
             className="mt-1 block w-full rounded-md border border-paper-border bg-paper-surface px-3 py-1.5 text-sm text-paper-text"
           >
             <option value="">{t('wbNoMeetingPoint')}</option>
-            {zones.map((z) => (
-              <option key={z.zone.id} value={z.zone.id}>
-                {z.zone.name}
+            {NASHIK_LANDMARKS.map((l) => (
+              <option key={l.id} value={l.name}>
+                {l.name}
               </option>
             ))}
           </select>

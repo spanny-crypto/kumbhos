@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   title: { default: title, template: `%s — ${siteName}` },
   description,
   applicationName: siteName,
-  keywords: ['KumbhOS', 'Kumbh Mela', 'crowd management', 'crowd intelligence', 'crowd safety', 'infrastructure monitoring', 'Prayagraj'],
+  keywords: ['KumbhOS', 'Kumbh Mela', 'Simhastha', 'crowd management', 'crowd intelligence', 'crowd safety', 'infrastructure monitoring', 'Nashik', 'Trimbakeshwar'],
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',

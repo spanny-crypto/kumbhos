@@ -5,6 +5,7 @@ import type {
   DataSourceRecord,
   EventItem,
   Facility,
+  HomestayListing,
   Incident,
   IncidentStatus,
   InfrastructureAsset,
@@ -18,7 +19,7 @@ import type {
   WristbandProfile,
   Zone
 } from './types';
-import type { CreateIncidentInput, CreateLostFoundInput, CreateWristbandInput, DataProvider, WaterQualityInput } from './provider';
+import type { CreateHomestayInput, CreateIncidentInput, CreateLostFoundInput, CreateWristbandInput, DataProvider, WaterQualityInput } from './provider';
 import { generateShortCode } from '@/lib/utils/id';
 
 // Real Postgres-backed implementation of DataProvider. Only instantiated
@@ -213,6 +214,42 @@ function toLostFoundCase(row: LostFoundRow): LostFoundCase {
     description: row.description,
     reportedAt: row.reported_at,
     contactInfo: row.contact_info,
+    dataSource: row.data_source
+  };
+}
+
+interface HomestayRow {
+  id: string;
+  name: string;
+  type: HomestayListing['type'];
+  area: string;
+  price_per_night_min: number;
+  price_per_night_max: number;
+  capacity: number;
+  contact_name: string;
+  contact_phone: string;
+  amenities: string[];
+  description: string | null;
+  photo_data_url: string | null;
+  created_at: string;
+  data_source: HomestayListing['dataSource'];
+}
+
+function toHomestayListing(row: HomestayRow): HomestayListing {
+  return {
+    id: row.id,
+    name: row.name,
+    type: row.type,
+    area: row.area,
+    pricePerNightMin: row.price_per_night_min,
+    pricePerNightMax: row.price_per_night_max,
+    capacity: row.capacity,
+    contactName: row.contact_name,
+    contactPhone: row.contact_phone,
+    amenities: row.amenities,
+    description: row.description,
+    photoDataUrl: row.photo_data_url,
+    createdAt: row.created_at,
     dataSource: row.data_source
   };
 }
@@ -521,6 +558,32 @@ export class SupabaseDataProvider implements DataProvider {
     const { data, error } = await this.client.from('lost_found_cases').update({ status }).eq('id', id).select('*').maybeSingle();
     if (error) throw new Error(error.message);
     return data ? toLostFoundCase(data as LostFoundRow) : null;
+  }
+
+  async getHomestayListings() {
+    return this.selectAll<HomestayRow, HomestayListing>('homestay_listings', toHomestayListing);
+  }
+  async createHomestayListing(input: CreateHomestayInput) {
+    const { data, error } = await this.client
+      .from('homestay_listings')
+      .insert({
+        name: input.name,
+        type: input.type,
+        area: input.area,
+        price_per_night_min: input.pricePerNightMin,
+        price_per_night_max: input.pricePerNightMax,
+        capacity: input.capacity,
+        contact_name: input.contactName,
+        contact_phone: input.contactPhone,
+        amenities: input.amenities,
+        description: input.description,
+        photo_data_url: input.photoDataUrl,
+        data_source: 'USER_REPORTED'
+      })
+      .select('*')
+      .single();
+    if (error) throw new Error(error.message);
+    return toHomestayListing(data as HomestayRow);
   }
 
   async getFacilities() {

@@ -176,6 +176,23 @@ create table if not exists lost_found_cases (
 );
 create index if not exists idx_lost_found_status on lost_found_cases(status);
 
+create table if not exists homestay_listings (
+  id uuid primary key default uuid_generate_v4(),
+  name text not null,
+  type text not null,
+  area text not null,
+  price_per_night_min integer not null,
+  price_per_night_max integer not null,
+  capacity integer not null,
+  contact_name text not null,
+  contact_phone text not null,
+  amenities text[] not null default '{}',
+  description text,
+  photo_data_url text,
+  created_at timestamptz not null default now(),
+  data_source text not null default 'USER_REPORTED'
+);
+
 create table if not exists facilities (
   id text primary key,
   name text not null,
@@ -330,6 +347,7 @@ alter table announcements enable row level security;
 alter table data_sources enable row level security;
 alter table incidents enable row level security;
 alter table lost_found_cases enable row level security;
+alter table homestay_listings enable row level security;
 alter table volunteers enable row level security;
 alter table response_teams enable row level security;
 alter table simulation_events enable row level security;
@@ -353,6 +371,12 @@ create policy "staff delete water_quality" on water_quality_records for delete u
 
 create policy "public read lost_found" on lost_found_cases for select using (true);
 create policy "public insert lost_found" on lost_found_cases for insert with check (true);
+
+-- Same public read/insert shape as lost_found_cases above: a host adding a
+-- property listing (and a pilgrim browsing them) needs no sign-in, and the
+-- contact phone number is the whole point of a listing being public.
+create policy "public read homestay_listings" on homestay_listings for select using (true);
+create policy "public insert homestay_listings" on homestay_listings for insert with check (true);
 
 -- No public/anon policy at all, unlike every other table above: wristband
 -- profiles hold a real name, a guardian's phone number, and optional

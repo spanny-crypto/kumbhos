@@ -5,6 +5,16 @@ import QRCode from 'qrcode';
 import { Phone, Printer } from 'lucide-react';
 import type { WristbandProfile } from '@/lib/data/types';
 
+// The QR encodes a plain `tel:` URI — scanning it with any phone's camera
+// opens the dialer with the guardian's number pre-filled. No hosted page, no
+// server, no network of any kind involved: it works the same whether the
+// finder has signal, wifi, or neither. Every other detail (name, age,
+// meeting point, medical notes) is already printed as plain text on the
+// card itself, so nothing is lost by keeping the QR this simple.
+function buildTelUri(phone: string): string {
+  return `tel:${phone.replace(/\s/g, '')}`;
+}
+
 // The printable card itself — used both right after creation (public
 // /wristband page) and for staff re-printing a lost band (command centre).
 // Deliberately plain, high-contrast, and large-print: this gets printed on
@@ -12,24 +22,21 @@ import type { WristbandProfile } from '@/lib/data/types';
 // admired as a design piece.
 export function WristbandCard({ profile, zoneName }: { profile: WristbandProfile; zoneName: string | null }) {
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
-  const scanUrl = typeof window !== 'undefined' ? `${window.location.origin}/wristband/${profile.id}` : '';
 
   useEffect(() => {
     let cancelled = false;
-    QRCode.toDataURL(scanUrl, { margin: 1, width: 200 }).then((url) => {
-      if (!cancelled) setQrDataUrl(url);
+    QRCode.toDataURL(buildTelUri(profile.guardianPhone), { margin: 1, width: 200 }).then((dataUrl) => {
+      if (!cancelled) setQrDataUrl(dataUrl);
     });
-    return () => {
-      cancelled = true;
-    };
-  }, [scanUrl]);
+    return () => { cancelled = true; };
+  }, [profile.guardianPhone]);
 
   return (
     <div>
       <div id="wristband-print-card" className="mx-auto max-w-sm rounded-2xl border-2 border-dashed border-paper-text/40 bg-white p-5 text-black">
-        <p className="text-center text-[10px] font-bold uppercase tracking-widest text-black/60">KumbhOS ID Wristband — Scan if found</p>
+        <p className="text-center text-[10px] font-bold uppercase tracking-widest text-black/60">KumbhOS ID Wristband — Scan to call guardian</p>
         <div className="mt-3 flex items-center gap-4">
-          {qrDataUrl && <img src={qrDataUrl} alt="Scan QR code" width={110} height={110} className="shrink-0" />}
+          {qrDataUrl && <img src={qrDataUrl} alt="Scan to call guardian" width={110} height={110} className="shrink-0" />}
           <div className="min-w-0">
             <p className="text-2xl font-black tracking-wide">{profile.fullName}</p>
             {profile.age !== null && <p className="text-sm">Age {profile.age}</p>}
@@ -47,7 +54,7 @@ export function WristbandCard({ profile, zoneName }: { profile: WristbandProfile
 
       <div className="mt-3 flex justify-center gap-2 print:hidden">
         <a
-          href={`tel:${profile.guardianPhone.replace(/\s/g, '')}`}
+          href={buildTelUri(profile.guardianPhone)}
           className="fast-transition flex items-center gap-1.5 rounded-md border border-paper-border px-3 py-1.5 text-xs font-medium text-paper-text hover:bg-paper-bg"
         >
           <Phone size={13} /> Test call link

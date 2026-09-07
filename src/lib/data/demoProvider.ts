@@ -3,6 +3,7 @@ import type {
   DataSourceRecord,
   EventItem,
   Facility,
+  HomestayListing,
   Incident,
   IncidentStatus,
   InfrastructureAsset,
@@ -16,7 +17,7 @@ import type {
   WristbandProfile,
   Zone
 } from './types';
-import type { CreateIncidentInput, CreateLostFoundInput, CreateWristbandInput, DataProvider, WaterQualityInput } from './provider';
+import type { CreateHomestayInput, CreateIncidentInput, CreateLostFoundInput, CreateWristbandInput, DataProvider, WaterQualityInput } from './provider';
 import { lostFoundBackup } from './lostFoundBackup';
 import { wristbandBackup } from './wristbandBackup';
 import { generateShortCode } from '@/lib/utils/id';
@@ -25,6 +26,7 @@ import {
   generateDataSources,
   generateEvents,
   generateFacilities,
+  generateHomestayListings,
   generateIncidents,
   generateInfrastructure,
   generateLostFoundCases,
@@ -50,6 +52,7 @@ interface DemoState {
   simulationEvents: SimulationEvent[];
   waterQuality: WaterQualityRecord[];
   wristbands: WristbandProfile[];
+  homestays: HomestayListing[];
 }
 
 // Module-level singleton so state persists across requests within one server
@@ -75,7 +78,8 @@ function buildInitialState(): DemoState {
     // No seed data here, unlike everything else — wristband profiles are
     // real people's real contact info, entered by real guardians on-site,
     // not synthetic demo content.
-    wristbands: []
+    wristbands: [],
+    homestays: generateHomestayListings()
   };
 }
 
@@ -174,7 +178,7 @@ export class DemoDataProvider implements DataProvider {
       severity: input.severity,
       status: 'NEW',
       zoneId: input.zoneId,
-      location: zone?.center ?? { lat: 25.4305, lng: 81.8809 },
+      location: zone?.center ?? { lat: 19.9975, lng: 73.7898 }, // Nashik–Trimbakeshwar fallback
       description: input.description,
       reportedAt: now,
       updatedAt: now,
@@ -335,6 +339,20 @@ export class DemoDataProvider implements DataProvider {
     const updated: WristbandProfile = { ...state.wristbands[idx]!, status };
     state.wristbands = [...state.wristbands.slice(0, idx), updated, ...state.wristbands.slice(idx + 1)];
     return delay(updated);
+  }
+
+  async getHomestayListings() {
+    return delay(state.homestays);
+  }
+  async createHomestayListing(input: CreateHomestayInput) {
+    const listing: HomestayListing = {
+      ...input,
+      id: `homestay-${generateShortCode()}`,
+      createdAt: new Date().toISOString(),
+      dataSource: 'USER_REPORTED'
+    };
+    state.homestays = [listing, ...state.homestays];
+    return delay(listing);
   }
 
   async applyScenario(type: ScenarioType, zoneId: string) {

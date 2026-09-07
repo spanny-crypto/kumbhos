@@ -3,6 +3,7 @@ import type {
   DataSourceRecord,
   EventItem,
   Facility,
+  HomestayListing,
   Incident,
   IncidentStatus,
   InfrastructureAsset,
@@ -43,6 +44,20 @@ export interface CreateWristbandInput {
   guardianPhone: string;
   meetingPointZoneId: string | null;
   medicalNotes: string | null;
+}
+
+export interface CreateHomestayInput {
+  name: string;
+  type: HomestayListing['type'];
+  area: string;
+  pricePerNightMin: number;
+  pricePerNightMax: number;
+  capacity: number;
+  contactName: string;
+  contactPhone: string;
+  amenities: string[];
+  description: string;
+  photoDataUrl: string;
 }
 
 /**
@@ -88,6 +103,9 @@ export interface DataProvider {
   getWristbandProfile(id: string): Promise<WristbandProfile | null>;
   createWristbandProfile(input: CreateWristbandInput): Promise<WristbandProfile>;
   updateWristbandStatus(id: string, status: WristbandStatus): Promise<WristbandProfile | null>;
+
+  getHomestayListings(): Promise<HomestayListing[]>;
+  createHomestayListing(input: CreateHomestayInput): Promise<HomestayListing>;
 
   applyScenario(type: ScenarioType, zoneId: string): Promise<SimulationEvent>;
   getRecentSimulationEvents(): Promise<SimulationEvent[]>;

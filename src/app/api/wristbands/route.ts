@@ -43,12 +43,15 @@ export async function POST(req: Request) {
       return apiError('VALIDATION_ERROR', 'Medical notes are too long.');
     }
 
-    const data = getDataProvider();
-    if (body.meetingPointZoneId) {
-      const zone = await data.getZone(body.meetingPointZoneId);
-      if (!zone) return apiError('VALIDATION_ERROR', 'Unknown zone.');
+    if (body.meetingPointZoneId && body.meetingPointZoneId.length > 100) {
+      return apiError('VALIDATION_ERROR', 'Meeting point is too long.');
     }
 
+    // meetingPointZoneId is a free-text place name (e.g. a real Nashik
+    // landmark picked from NASHIK_LANDMARKS), not a foreign key — the field
+    // keeps its original name to avoid a wider rename, but nothing looks it
+    // up against the zones dataset anymore.
+    const data = getDataProvider();
     const created = await data.createWristbandProfile({
       fullName: body.fullName,
       age: body.age ?? null,

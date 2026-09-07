@@ -6,6 +6,7 @@ import type {
   EventItem,
   Facility,
   GeoPoint,
+  HomestayListing,
   Incident,
   InfrastructureAsset,
   LostFoundCase,
@@ -30,41 +31,43 @@ function pick<T>(items: T[]): T {
   return items[randInt(0, items.length - 1)] as T;
 }
 
-// Approximate centre of the Kumbh Mela grounds at the Sangam, Prayagraj.
-const CENTER: GeoPoint = { lat: 25.4305, lng: 81.8809 };
+// Centre of the Nashik–Trimbakeshwar Kumbh Mela area (matches NASHIK_CENTER
+// in components/map/nashikLayers.ts). Used only as a fallback default —
+// each zone below carries its own real approximate coordinate instead of
+// being algorithmically ringed around one point, since Nashik's actual
+// pilgrim areas span a real ~28km spread (city ghats to Trimbakeshwar), not
+// a single dense cluster the way Prayagraj's Sangam grounds are.
+const CENTER: GeoPoint = { lat: 19.9975, lng: 73.7898 };
 
-const SECTOR_NAMES = [
-  'Sangam Nose',
-  'Sector 1 — Jhunsi',
-  'Sector 2 — Arail',
-  'Sector 3 — Parade Ground',
-  'Sector 4 — Kydganj',
-  'Sector 5 — Naini Approach',
-  'Sector 6 — Daraganj',
-  'Sector 7 — Ram Ghat',
-  'Sector 8 — Central Market',
-  'Sector 9 — Old GT Road',
-  'Sector 10 — Railway Approach',
-  'Sector 11 — Civil Lines',
-  'Sector 12 — Akhara Camps',
-  'Sector 13 — VIP Ghat',
-  'Sector 14 — Bus Terminal',
-  'Sector 15 — Parking North',
-  'Sector 16 — Parking South',
-  'Sector 17 — Chatnag Road',
-  'Sector 18 — Kali Ghat',
-  'Sector 19 — Medical Camp Zone'
+// Real Nashik–Trimbakeshwar locality/ghat names with real approximate
+// coordinates (ghat positions cross-checked against the surveyed
+// ghats.geojson layer in components/map/nashikLayers.ts; general localities
+// are standard well-known Nashik-area coordinates). The crowd/capacity
+// NUMBERS attached to each zone below remain entirely synthetic — there is
+// no live sensor network — but the geography itself is now real Nashik,
+// not a re-skinned Prayagraj layout.
+const ZONE_LOCATIONS: { name: string; center: GeoPoint }[] = [
+  { name: 'Ramkund', center: { lat: 20.0016, lng: 73.7889 } },
+  { name: 'Panchavati', center: { lat: 20.0043, lng: 73.7898 } },
+  { name: 'Trimbakeshwar', center: { lat: 19.9316, lng: 73.5306 } },
+  { name: 'Kushavarta Kund, Trimbakeshwar', center: { lat: 19.9328, lng: 73.5298 } },
+  { name: 'Someshwar Ghat', center: { lat: 19.9683, lng: 73.7652 } },
+  { name: 'Kapila Sangam Ghat', center: { lat: 19.9984, lng: 73.8135 } },
+  { name: 'Takali Sangam Ghat', center: { lat: 19.9876, lng: 73.8234 } },
+  { name: 'Nandini Sangam', center: { lat: 19.9897, lng: 73.8252 } },
+  { name: 'Lakshminarayan Ghat', center: { lat: 20.0002, lng: 73.8073 } },
+  { name: 'Talkuteshwar', center: { lat: 20.0031, lng: 73.7977 } },
+  { name: 'Tapovan', center: { lat: 20.0103, lng: 73.7783 } },
+  { name: 'Anjaneri', center: { lat: 19.9187, lng: 73.5423 } },
+  { name: 'Deolali Camp', center: { lat: 19.9457, lng: 73.8306 } },
+  { name: 'Nashik Road', center: { lat: 19.9483, lng: 73.833 } },
+  { name: 'CBS (Central Bus Stand)', center: { lat: 19.9958, lng: 73.7912 } },
+  { name: 'Gangapur Road', center: { lat: 19.9989, lng: 73.7645 } },
+  { name: 'Dwarka Circle', center: { lat: 19.977, lng: 73.8083 } },
+  { name: 'College Road', center: { lat: 20.0071, lng: 73.7756 } },
+  { name: 'Sula Vineyards Area, Gangapur', center: { lat: 20.0367, lng: 73.7302 } },
+  { name: 'Ambad', center: { lat: 20.0104, lng: 73.7402 } }
 ];
-
-function offset(index: number): GeoPoint {
-  const ring = Math.floor(index / 6);
-  const angle = ((index % 6) / 6) * 2 * Math.PI;
-  const radiusDeg = 0.008 + ring * 0.009;
-  return {
-    lat: CENTER.lat + Math.sin(angle) * radiusDeg,
-    lng: CENTER.lng + Math.cos(angle) * radiusDeg * 1.1
-  };
-}
 
 function boundaryFor(center: GeoPoint, sizeDeg: number): GeoPoint[] {
   return [
@@ -77,8 +80,7 @@ function boundaryFor(center: GeoPoint, sizeDeg: number): GeoPoint[] {
 
 export function generateZones(): Zone[] {
   const now = new Date().toISOString();
-  return SECTOR_NAMES.map((name, i) => {
-    const center = offset(i);
+  return ZONE_LOCATIONS.map(({ name, center }, i) => {
     const capacity = randInt(15000, 90000);
     const utilization = rand() * 0.8 + (i < 3 ? 0.15 : 0); // first few sectors busier by default
     const currentPopulation = Math.round(capacity * utilization);
@@ -283,6 +285,127 @@ export function generateEvents(zones: Zone[]): EventItem[] {
       zoneId: pick(zones).id
     };
   });
+}
+
+// A handful of example accommodation listings across real Nashik–
+// Trimbakeshwar areas, so the Homestays board isn't empty on first launch.
+// Clearly fictional (dataSource SIMULATED) — see HomestayListing's doc
+// comment. Names/contacts are placeholders, not real businesses.
+export function generateHomestayListings(): HomestayListing[] {
+  const now = new Date().toISOString();
+  const examples: Omit<HomestayListing, 'id' | 'createdAt' | 'dataSource'>[] = [
+    {
+      name: 'Godavari View Homestay',
+      type: 'HOMESTAY',
+      area: 'Panchavati',
+      pricePerNightMin: 800,
+      pricePerNightMax: 1500,
+      capacity: 4,
+      contactName: 'Sunita Deshmukh',
+      contactPhone: '+91 90000 11111',
+      amenities: ['Walking distance to Ramkund', 'Veg meals included', 'Fan rooms'],
+      description: 'Family home, two rooms available during the Mela season.',
+      photoDataUrl: null
+    },
+    {
+      name: 'Trimbak Yatri Niwas',
+      type: 'DHARAMSHALA',
+      area: 'Trimbakeshwar',
+      pricePerNightMin: 300,
+      pricePerNightMax: 600,
+      capacity: 6,
+      contactName: 'Ramesh Joshi',
+      contactPhone: '+91 90000 22222',
+      amenities: ['Near Trimbakeshwar Temple', 'Shared bathrooms', 'Basic bedding provided'],
+      description: 'Pilgrim rest-house, first-come-first-served during peak bathing days.',
+      photoDataUrl: null
+    },
+    {
+      name: 'Panchavati Comfort Rooms',
+      type: 'GUESTHOUSE',
+      area: 'Panchavati',
+      pricePerNightMin: 1200,
+      pricePerNightMax: 2200,
+      capacity: 3,
+      contactName: 'Anil Kale',
+      contactPhone: '+91 90000 33333',
+      amenities: ['AC available', 'Attached bathroom', 'Parking'],
+      description: 'Comfortable rooms in the heart of Panchavati.',
+      photoDataUrl: null
+    },
+    {
+      name: 'Deolali Camp Guest House',
+      type: 'GUESTHOUSE',
+      area: 'Deolali Camp',
+      pricePerNightMin: 900,
+      pricePerNightMax: 1600,
+      capacity: 5,
+      contactName: 'Priya Shinde',
+      contactPhone: '+91 90000 44444',
+      amenities: ['Near Nashik Road station', 'Parking', 'Hot water'],
+      description: 'Quieter option, about 20 min from the main ghats.',
+      photoDataUrl: null
+    },
+    {
+      name: 'Someshwar Riverside Stay',
+      type: 'HOMESTAY',
+      area: 'Someshwar',
+      pricePerNightMin: 700,
+      pricePerNightMax: 1300,
+      capacity: 4,
+      contactName: 'Vinod Patil',
+      contactPhone: '+91 90000 55555',
+      amenities: ['Riverside garden', 'Veg meals on request'],
+      description: 'Peaceful riverside stay a short walk from Someshwar Ghat.',
+      photoDataUrl: null
+    },
+    {
+      name: 'CBS Budget Rooms',
+      type: 'HOTEL',
+      area: 'CBS (Central Bus Stand)',
+      pricePerNightMin: 600,
+      pricePerNightMax: 1000,
+      capacity: 2,
+      contactName: 'Manoj Rane',
+      contactPhone: '+91 90000 66666',
+      amenities: ['Walking distance to CBS', '24-hour check-in'],
+      description: 'Simple budget rooms right by the bus stand.',
+      photoDataUrl: null
+    },
+    {
+      name: 'Anjaneri Hillside PG',
+      type: 'PG',
+      area: 'Anjaneri',
+      pricePerNightMin: 400,
+      pricePerNightMax: 800,
+      capacity: 8,
+      contactName: 'Sanjay More',
+      contactPhone: '+91 90000 77777',
+      amenities: ['Dormitory-style', 'Good for groups', 'Near trekking trail'],
+      description: 'Best for groups travelling together.',
+      photoDataUrl: null
+    },
+    {
+      name: 'Tapovan Ashram Rooms',
+      type: 'DHARAMSHALA',
+      area: 'Tapovan',
+      pricePerNightMin: 250,
+      pricePerNightMax: 500,
+      capacity: 4,
+      contactName: 'Ashram Office',
+      contactPhone: '+91 90000 88888',
+      amenities: ['Near Akhara camps', 'Simple accommodation', 'Community kitchen access'],
+      description: 'Simple ashram-style rooms near the Akhara camps.',
+      photoDataUrl: null
+    }
+  ];
+
+  return examples.map((e, i) => ({
+    ...e,
+    id: `homestay-${i + 1}`,
+    createdAt: now,
+    dataSource: 'SIMULATED' as const
+  }));
 }
 
 export function generateAnnouncements(): Announcement[] {

@@ -43,7 +43,7 @@ export const NASHIK_LAYERS: NashikLayer[] = [
   { id: 'malls', file: 'malls.geojson', label: 'Malls', emoji: '🏬', color: '#c026d3' }
 ];
 
-/** Nashik–Trimbakeshwar, where this data actually is (the synthetic demo zones are Prayagraj). */
+/** Nashik–Trimbakeshwar. The synthetic crowd-pressure zones (seed/generate.ts) are also anchored here now — this layer's points are still the only surveyed/real-sourced positions in the app; the zones remain simulated numbers, just at real Nashik locations instead of Prayagraj ones. */
 export const NASHIK_CENTER = { lat: 19.9975, lng: 73.7898 };
 
 const cache = new Map<string, unknown>();
@@ -56,4 +56,34 @@ export async function loadNashikLayer(layer: NashikLayer): Promise<unknown> {
   const data = await res.json();
   cache.set(layer.id, data);
   return data;
+}
+
+export interface NashikPoint {
+  id: string;
+  name: string;
+  lat: number;
+  lng: number;
+}
+
+interface GeoJsonFeature {
+  type: 'Feature';
+  properties?: { name?: string };
+  geometry: { type: string; coordinates: number[] };
+}
+interface GeoJsonFeatureCollection {
+  type: 'FeatureCollection';
+  features: GeoJsonFeature[];
+}
+
+/** Pulls just the point markers (not the polygon outlines) out of a layer's GeoJSON, for distance/search use rather than map rendering. */
+export function extractPoints(geojson: unknown, fallbackLabel: string): NashikPoint[] {
+  const fc = geojson as GeoJsonFeatureCollection;
+  const points: NashikPoint[] = [];
+  (fc?.features ?? []).forEach((f, i) => {
+    if (f.geometry?.type !== 'Point') return;
+    const [lng, lat] = f.geometry.coordinates;
+    if (typeof lat !== 'number' || typeof lng !== 'number') return;
+    points.push({ id: `${fallbackLabel}-${i}`, name: f.properties?.name?.trim() || `${fallbackLabel} ${i + 1}`, lat, lng });
+  });
+  return points;
 }

@@ -1,31 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { Navigation } from 'lucide-react';
 import { useApi } from '@/hooks/useApi';
 import { AsyncState } from '@/components/common/AsyncState';
 import { PressureBadge } from '@/components/crowd/PressureBadge';
-import { PredictionCard } from '@/components/crowd/PredictionCard';
 import { DemoDataBadge } from '@/components/common/DemoDataBadge';
 import { useLanguage } from '@/components/layout/LanguageProvider';
-import type { CrowdPrediction, CrowdPressure, Zone } from '@/lib/data/types';
+import type { CrowdPressure, Zone } from '@/lib/data/types';
 
 interface ZoneWithPressure {
   zone: Zone;
   pressure: CrowdPressure;
 }
 
-function ZonePredictionPanel({ zoneId }: { zoneId: string }) {
-  const api = useApi<{ zone: Zone; pressure: CrowdPressure; prediction: CrowdPrediction }>(`/api/zones/${zoneId}/predict`);
-  return (
-    <AsyncState status={api.status} errorMessage={api.errorMessage} onRetry={api.retry} loadingLabel="Computing prediction…">
-      {api.data && <PredictionCard prediction={api.data.prediction} />}
-    </AsyncState>
-  );
+function directionsUrl(lat: number, lng: number): string {
+  return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
 }
 
 export default function CrowdPage() {
   const zonesApi = useApi<ZoneWithPressure[]>('/api/zones', { pollMs: 20000 });
-  const [expanded, setExpanded] = useState<string | null>(null);
   const { t } = useLanguage();
 
   const sorted = [...(zonesApi.data ?? [])].sort((a, b) => b.pressure.score - a.pressure.score);
@@ -43,20 +36,22 @@ export default function CrowdPage() {
       <AsyncState status={zonesApi.status} errorMessage={zonesApi.errorMessage} onRetry={zonesApi.retry} emptyMessage="No zones to display.">
         <div className="space-y-2">
           {sorted.map(({ zone, pressure }) => (
-            <div key={zone.id} className="paper-card p-4">
-              <button className="flex w-full items-center justify-between text-left" onClick={() => setExpanded(expanded === zone.id ? null : zone.id)}>
-                <div>
-                  <p className="text-sm font-semibold text-paper-text">{zone.name}</p>
-                  <p className="mt-0.5 text-xs text-paper-muted">{pressure.reason}</p>
-                </div>
-                <PressureBadge pressure={pressure} />
-              </button>
-              {expanded === zone.id && (
-                <div className="mt-3 border-t border-paper-border pt-3">
-                  <ZonePredictionPanel zoneId={zone.id} />
-                </div>
-              )}
-            </div>
+            <a
+              key={zone.id}
+              href={directionsUrl(zone.center.lat, zone.center.lng)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="paper-card fast-transition flex items-center justify-between gap-3 p-4 hover:bg-paper-bg"
+            >
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-paper-text">{zone.name}</p>
+                <p className="mt-0.5 text-xs text-paper-muted">{pressure.reason}</p>
+                <p className="mt-1.5 flex items-center gap-1 text-xs font-medium text-brand-600">
+                  <Navigation size={12} /> {t('crowdGetDirections')}
+                </p>
+              </div>
+              <PressureBadge pressure={pressure} />
+            </a>
           ))}
         </div>
       </AsyncState>

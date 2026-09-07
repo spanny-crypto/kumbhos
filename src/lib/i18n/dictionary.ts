@@ -23,6 +23,13 @@ export const dictionary = {
   navHome: { en: 'Dashboard', hi: 'डैशबोर्ड', mr: 'डॅशबोर्ड' },
   navBillboard: { en: 'Live Billboard', hi: 'लाइव बिलबोर्ड', mr: 'लाइव्ह बिलबोर्ड' },
   navLiveMap: { en: 'Live Map', hi: 'लाइव मानचित्र', mr: 'लाइव्ह नकाशा' },
+  navEGuide: { en: 'Nashik Guide', hi: 'नासिक गाइड', mr: 'नाशिक मार्गदर्शक' },
+  navMarketPrices: { en: 'Fair Price Guide', hi: 'उचित मूल्य गाइड', mr: 'योग्य किंमत मार्गदर्शक' },
+  navHomestays: { en: 'Kumbh Homestays', hi: 'कुंभ होमस्टे', mr: 'कुंभ होमस्टे' },
+  navGroupOverview: { en: 'Overview', hi: 'अवलोकन', mr: 'आढावा' },
+  navGroupExplore: { en: 'Explore Nashik', hi: 'नासिक देखें', mr: 'नाशिक पहा' },
+  navGroupSafety: { en: 'Safety', hi: 'सुरक्षा', mr: 'सुरक्षा' },
+  navGroupInfo: { en: 'Facilities & Info', hi: 'सुविधाएं और जानकारी', mr: 'सुविधा आणि माहिती' },
   navCrowd: { en: 'Crowd Safety', hi: 'भीड़ सुरक्षा', mr: 'गर्दी सुरक्षा' },
   navNavigation: { en: 'Trip Planner', hi: 'यात्रा योजनाकार', mr: 'प्रवास नियोजक' },
   navFacilities: { en: 'Facilities', hi: 'सुविधाएं', mr: 'सुविधा' },
@@ -80,11 +87,35 @@ export const dictionary = {
     mr: 'केवळ प्रोटोटाइप — खऱ्या आणीबाणी सेवांशी जोडलेले नाही. ही बटणे तुमच्या फोनचे खरे आणीबाणी क्रमांक डायल करतात.'
   },
 
-  pageLiveMapTitle: { en: 'Live Crowd Map', hi: 'लाइव भीड़ मानचित्र', mr: 'लाइव्ह गर्दी नकाशा' },
+  pageLiveMapTitle: { en: 'Nashik Infrastructure Map', hi: 'नासिक अवसंरचना मानचित्र', mr: 'नाशिक पायाभूत सुविधा नकाशा' },
   pageLiveMapSubtitle: {
-    en: 'Zones colored by prototype crowd pressure. Updates automatically.',
-    hi: 'प्रोटोटाइप भीड़ दबाव के अनुसार रंगीन क्षेत्र। स्वतः अपडेट होता है।',
-    mr: 'प्रोटोटाइप गर्दी दाबानुसार रंगीत विभाग. आपोआप अद्ययावत होते.'
+    en: 'Real Nashik–Trimbakeshwar ghats, hospitals, fire stations, and facility locations.',
+    hi: 'वास्तविक नासिक–त्र्यंबकेश्वर घाट, अस्पताल, दमकल केंद्र और सुविधा स्थान।',
+    mr: 'खरी नाशिक–त्र्यंबकेश्वर घाट, रुग्णालये, अग्निशमन केंद्रे आणि सुविधा स्थाने.'
+  },
+
+  pageEGuideTitle: { en: 'Nashik Heritage Guide', hi: 'नासिक विरासत गाइड', mr: 'नाशिक वारसा मार्गदर्शक' },
+  pageEGuideSubtitle: {
+    en: 'Temples, ghats, and landmarks worth visiting around Nashik–Trimbakeshwar.',
+    hi: 'नासिक–त्र्यंबकेश्वर के आसपास देखने लायक मंदिर, घाट और स्थल।',
+    mr: 'नाशिक–त्र्यंबकेश्वर परिसरातील पाहण्यासारखी मंदिरे, घाट आणि ठिकाणे.'
+  },
+  eGuideDisclaimer: {
+    en: 'Editorial content compiled from public historical sources — always confirm timings and access with local authorities before visiting.',
+    hi: 'सार्वजनिक ऐतिहासिक स्रोतों से संकलित संपादकीय सामग्री — जाने से पहले स्थानीय अधिकारियों से समय और पहुंच की पुष्टि करें।',
+    mr: 'सार्वजनिक ऐतिहासिक स्रोतांमधून संकलित संपादकीय मजकूर — भेट देण्यापूर्वी स्थानिक अधिकाऱ्यांकडून वेळ आणि प्रवेशाची खात्री करा.'
+  },
+
+  pageMarketPricesTitle: { en: 'Fair Price Guide', hi: 'उचित मूल्य गाइड', mr: 'योग्य किंमत मार्गदर्शक' },
+  pageMarketPricesSubtitle: {
+    en: 'Typical local prices so you know when you’re being overcharged.',
+    hi: 'सामान्य स्थानीय मूल्य ताकि आपको पता चले कि कब अधिक शुल्क लिया जा रहा है।',
+    mr: 'सर्वसाधारण स्थानिक किंमती जेणेकरून तुम्हाला जास्त शुल्क आकारले जात आहे हे कळेल.'
+  },
+  marketPricesDisclaimer: {
+    en: 'Indicative seasonal ranges, not a live price feed — actual prices vary by vendor, season, and bargaining. Use as a rough sanity check, not an exact quote.',
+    hi: 'ये मौसमी अनुमानित सीमाएं हैं, लाइव मूल्य फ़ीड नहीं — वास्तविक कीमतें विक्रेता, मौसम और मोलभाव के अनुसार बदलती हैं।',
+    mr: 'ही हंगामी अंदाजे किंमत श्रेणी आहे, थेट किंमत फीड नाही — प्रत्यक्ष किंमती विक्रेता, हंगाम आणि घासाघीशीनुसार बदलतात.'
   },
 
   pageCrowdTitle: { en: 'Crowd Pressure Index', hi: 'भीड़ दबाव सूचकांक', mr: 'गर्दी दाब निर्देशांक' },
@@ -93,12 +124,57 @@ export const dictionary = {
     hi: 'प्रोटोटाइप जोखिम मॉडल — घनत्व × गति × टकराव × क्षमता × वृद्धि.',
     mr: 'प्रोटोटाइप जोखीम मॉडेल — घनता × हालचाल × संघर्ष × क्षमता × वाढ.'
   },
+  crowdGetDirections: { en: 'Get directions', hi: 'दिशा-निर्देश पाएं', mr: 'दिशानिर्देश मिळवा' },
 
-  pageNavigationTitle: { en: 'Dynamic Navigation', hi: 'गतिशील मार्गदर्शन', mr: 'गतिमान मार्गदर्शन' },
+  pageHomestaysTitle: { en: 'Kumbh Homestays', hi: 'कुंभ होमस्टे', mr: 'कुंभ होमस्टे' },
+  pageHomestaysSubtitle: {
+    en: 'Homestays, guesthouses, and dharamshalas near Nashik–Trimbakeshwar for the Mela season.',
+    hi: 'मेला सीज़न के लिए नासिक–त्र्यंबकेश्वर के पास होमस्टे, गेस्टहाउस और धर्मशालाएं।',
+    mr: 'मेळाव्याच्या हंगामासाठी नाशिक–त्र्यंबकेश्वर जवळील होमस्टे, गेस्टहाऊस आणि धर्मशाळा.'
+  },
+  homestayListYours: { en: 'List your property', hi: 'अपनी संपत्ति सूचीबद्ध करें', mr: 'तुमची मालमत्ता सूचीबद्ध करा' },
+  homestayCancelListing: { en: 'Cancel', hi: 'रद्द करें', mr: 'रद्द करा' },
+  homestayCallNote: {
+    en: 'Contact hosts directly by phone — there is no booking or payment inside the app.',
+    hi: 'मेजबानों से सीधे फोन पर संपर्क करें — ऐप के अंदर कोई बुकिंग या भुगतान नहीं है।',
+    mr: 'यजमानांशी थेट फोनवर संपर्क साधा — अ‍ॅपमध्ये कोणतेही बुकिंग किंवा पेमेंट नाही.'
+  },
+  homestayName: { en: 'Property name', hi: 'संपत्ति का नाम', mr: 'मालमत्तेचे नाव' },
+  homestayType: { en: 'Type', hi: 'प्रकार', mr: 'प्रकार' },
+  homestayArea: { en: 'Area', hi: 'क्षेत्र', mr: 'क्षेत्र' },
+  homestayAreaPlaceholder: { en: 'e.g. Panchavati, Trimbakeshwar', hi: 'जैसे पंचवटी, त्र्यंबकेश्वर', mr: 'उदा. पंचवटी, त्र्यंबकेश्वर' },
+  homestayPriceMin: { en: 'Price/night (min ₹)', hi: 'मूल्य/रात (न्यूनतम ₹)', mr: 'किंमत/रात्र (किमान ₹)' },
+  homestayPriceMax: { en: 'Price/night (max ₹)', hi: 'मूल्य/रात (अधिकतम ₹)', mr: 'किंमत/रात्र (कमाल ₹)' },
+  homestayCapacity: { en: 'Guest capacity', hi: 'अतिथि क्षमता', mr: 'पाहुणे क्षमता' },
+  homestayContactName: { en: 'Contact name', hi: 'संपर्क नाम', mr: 'संपर्क नाव' },
+  homestayContactPhone: { en: 'Contact phone', hi: 'संपर्क फोन', mr: 'संपर्क फोन' },
+  homestayAmenities: { en: 'Amenities (comma separated)', hi: 'सुविधाएं (अल्पविराम से अलग)', mr: 'सुविधा (स्वल्पविरामाने वेगळे)' },
+  homestayAmenitiesPlaceholder: { en: 'e.g. Parking, Veg meals, AC', hi: 'जैसे पार्किंग, शाकाहारी भोजन, AC', mr: 'उदा. पार्किंग, शाकाहारी जेवण, AC' },
+  homestayPhoto: { en: 'Property photo', hi: 'संपत्ति की फोटो', mr: 'मालमत्तेचा फोटो' },
+  homestayPhotoHint: {
+    en: 'A real photo of the property — helps pilgrims know what to expect. Resized on your device before saving.',
+    hi: 'संपत्ति की एक वास्तविक फोटो — तीर्थयात्रियों को पता चलता है कि क्या उम्मीद करें। सहेजने से पहले आपके डिवाइस पर रीसाइज़ किया जाता है।',
+    mr: 'मालमत्तेचा खरा फोटो — यात्रेकरूंना काय अपेक्षित आहे हे कळण्यास मदत होते. जतन करण्यापूर्वी तुमच्या डिव्हाइसवर आकार बदलला जातो.'
+  },
+  homestayPhotoRequired: { en: 'A property photo is required.', hi: 'संपत्ति की फोटो आवश्यक है।', mr: 'मालमत्तेचा फोटो आवश्यक आहे.' },
+  homestayDescription: { en: 'Description', hi: 'विवरण', mr: 'वर्णन' },
+  homestayDescriptionPlaceholder: {
+    en: 'Describe the rooms, what makes it a good fit for pilgrims, distance to the ghats, etc.',
+    hi: 'कमरों का वर्णन करें, तीर्थयात्रियों के लिए यह क्यों उपयुक्त है, घाटों से दूरी, आदि।',
+    mr: 'खोल्यांचे वर्णन करा, यात्रेकरूंसाठी हे का योग्य आहे, घाटांपासूनचे अंतर, इ.'
+  },
+  homestaySaving: { en: 'Saving…', hi: 'सहेजा जा रहा है…', mr: 'जतन होत आहे…' },
+  homestaySaveListing: { en: 'Save listing', hi: 'सूची सहेजें', mr: 'यादी जतन करा' },
+  homestayNoneYet: { en: 'No listings yet.', hi: 'अभी तक कोई सूची नहीं।', mr: 'अद्याप कोणतीही यादी नाही.' },
+  homestayExampleBadge: { en: 'Example', hi: 'उदाहरण', mr: 'उदाहरण' },
+  homestayCapacityLabel: { en: 'Sleeps', hi: 'क्षमता', mr: 'क्षमता' },
+  homestayCall: { en: 'Call', hi: 'कॉल करें', mr: 'कॉल करा' },
+
+  pageNavigationTitle: { en: 'Trip Planner', hi: 'यात्रा योजनाकार', mr: 'प्रवास नियोजक' },
   pageNavigationSubtitle: {
-    en: 'Straight-line estimate weighted by current crowd pressure — not turn-by-turn routing.',
-    hi: 'वर्तमान भीड़ दबाव के अनुसार सीधी-रेखा अनुमान — टर्न-बाय-टर्न मार्गदर्शन नहीं.',
-    mr: 'सध्याच्या गर्दी दाबानुसार सरळ-रेषा अंदाज — टर्न-बाय-टर्न मार्गदर्शन नाही.'
+    en: 'Find the nearest real ghat, hospital, or facility from real Nashik–Trimbakeshwar data — straight-line estimate, not turn-by-turn routing.',
+    hi: 'वास्तविक नासिक–त्र्यंबकेश्वर डेटा से निकटतम घाट, अस्पताल या सुविधा खोजें — सीधी-रेखा अनुमान, टर्न-बाय-टर्न मार्गदर्शन नहीं.',
+    mr: 'खऱ्या नाशिक–त्र्यंबकेश्वर डेटावरून सर्वात जवळचा घाट, रुग्णालय किंवा सुविधा शोधा — सरळ-रेषा अंदाज, टर्न-बाय-टर्न मार्गदर्शन नाही.'
   },
 
   pageFacilitiesTitle: { en: 'Facilities', hi: 'सुविधाएं', mr: 'सुविधा' },
@@ -113,8 +189,23 @@ export const dictionary = {
     mr: 'गोपनीयता-सजग समन्वय स्तर. चेहरा ओळख तंत्रज्ञान वापरले जात नाही — पुनर्मिलनापूर्वी प्रत्येक जुळणीसाठी कर्मचाऱ्यांची पडताळणी आवश्यक आहे.'
   },
 
-  pageEventsTitle: { en: 'Events', hi: 'कार्यक्रम', mr: 'कार्यक्रम' },
-  pageEventsSubtitle: { en: 'Scheduled programme for the gathering.', hi: 'मेले के लिए निर्धारित कार्यक्रम.', mr: 'मेळाव्यासाठी नियोजित कार्यक्रम.' },
+  pageEventsTitle: { en: 'Kumbh Mela Calendar', hi: 'कुंभ मेला कैलेंडर', mr: 'कुंभ मेळा दिनदर्शिका' },
+  pageEventsSubtitle: {
+    en: 'Pick a date to see what happens that day during the Nashik–Trimbakeshwar Simhastha Kumbh.',
+    hi: 'नासिक–त्र्यंबकेश्वर सिंहस्थ कुंभ के दौरान उस दिन क्या होता है यह देखने के लिए एक तारीख चुनें।',
+    mr: 'नाशिक–त्र्यंबकेश्वर सिंहस्थ कुंभ दरम्यान त्या दिवशी काय घडते हे पाहण्यासाठी एक तारीख निवडा.'
+  },
+  eventsCalendarDisclaimer: {
+    en: 'Dates are as publicly announced well ahead of the event and may shift slightly once the final Panchang-based calendar is confirmed.',
+    hi: 'तारीखें कार्यक्रम से बहुत पहले सार्वजनिक रूप से घोषित की गई हैं और अंतिम पंचांग-आधारित कैलेंडर की पुष्टि होने पर थोड़ी बदल सकती हैं।',
+    mr: 'तारखा कार्यक्रमाच्या खूप आधी सार्वजनिकरित्या जाहीर केल्या आहेत आणि अंतिम पंचांग-आधारित दिनदर्शिका निश्चित झाल्यावर थोड्या बदलू शकतात.'
+  },
+  eventsNoneOnDate: {
+    en: 'No scheduled milestone or bathing event on this date — check the daily ongoing events below.',
+    hi: 'इस तारीख पर कोई निर्धारित मील का पत्थर या स्नान कार्यक्रम नहीं — नीचे दैनिक कार्यक्रम देखें।',
+    mr: 'या तारखेला कोणताही नियोजित टप्पा किंवा स्नान कार्यक्रम नाही — खाली दैनंदिन कार्यक्रम पहा.'
+  },
+  eventsDailyHeading: { en: 'Every day during the Mela season', hi: 'मेले के मौसम के दौरान हर दिन', mr: 'मेळाव्याच्या हंगामात दररोज' },
 
   pageAssistantTitle: { en: 'AI Kumbh Assistant', hi: 'एआई कुंभ सहायक', mr: 'एआय कुंभ सहाय्यक' },
   pageAssistantSubtitle: {
@@ -247,6 +338,17 @@ export const dictionary = {
   },
   navNoFacilities: { en: 'No matching facilities found for this category.', hi: 'इस श्रेणी के लिए कोई मेल खाती सुविधा नहीं मिली.', mr: 'या प्रकारासाठी जुळणारी सुविधा सापडली नाही.' },
   navMinWalk: { en: 'min walk', hi: 'मिनट पैदल', mr: 'मिनिटे चालत' },
+  navYourLocation: { en: 'Your current location', hi: 'आपका वर्तमान स्थान', mr: 'तुमचे सध्याचे स्थान' },
+  navRealDataNote: {
+    en: 'Real surveyed Nashik–Trimbakeshwar locations, ranked by straight-line distance.',
+    hi: 'वास्तविक सर्वेक्षित नासिक–त्र्यंबकेश्वर स्थान, सीधी-रेखा दूरी के अनुसार क्रमबद्ध।',
+    mr: 'खरी सर्वेक्षित नाशिक–त्र्यंबकेश्वर ठिकाणे, सरळ-रेषा अंतरानुसार क्रमवारीत.'
+  },
+  navFromLabel: { en: 'From', hi: 'से', mr: 'पासून' },
+  navLoadingData: { en: 'Loading real location data…', hi: 'वास्तविक स्थान डेटा लोड हो रहा है…', mr: 'खरा स्थान डेटा लोड होत आहे…' },
+  navLoadError: { en: 'Could not load this layer’s data.', hi: 'इस परत का डेटा लोड नहीं हो सका।', mr: 'या स्तराचा डेटा लोड करता आला नाही.' },
+  navNearest: { en: 'Nearest', hi: 'निकटतम', mr: 'सर्वात जवळचे' },
+  navPickLandmarkInstead: { en: 'Pick a landmark instead', hi: 'इसके बजाय एक स्थल चुनें', mr: 'त्याऐवजी एक ठिकाण निवडा' },
   routeFastest: { en: 'Fastest', hi: 'सबसे तेज़', mr: 'सर्वात जलद' },
   routeSafest: { en: 'Safest', hi: 'सबसे सुरक्षित', mr: 'सर्वात सुरक्षित' },
   routeLowestCrowd: { en: 'Lowest Crowd', hi: 'सबसे कम भीड़', mr: 'सर्वात कमी गर्दी' },
@@ -258,6 +360,7 @@ export const dictionary = {
   catFirePost: { en: 'Fire post', hi: 'अग्निशमन चौकी', mr: 'अग्निशमन चौकी' },
   catGhat: { en: 'Ghat', hi: 'घाट', mr: 'घाट' },
   catBridge: { en: 'Bridge', hi: 'पुल', mr: 'पूल' },
+  catMarket: { en: 'Vegetable Market', hi: 'सब्जी बाजार', mr: 'भाजी बाजार' },
 
   wbReadyTitle: { en: 'Wristband ready', hi: 'पट्टी तैयार है', mr: 'पट्टी तयार आहे' },
   wbReadySubtitle: {

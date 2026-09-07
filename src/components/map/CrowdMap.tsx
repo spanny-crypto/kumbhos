@@ -56,7 +56,7 @@ const OSM_STYLE: maplibregl.StyleSpecification = {
   ]
 };
 
-export function CrowdMap({ zones, facilities = [], incidents = [], center = { lat: 25.4305, lng: 81.8809 }, zoom = 14, onZoneClick, className }: CrowdMapProps) {
+export function CrowdMap({ zones, facilities = [], incidents = [], center = { lat: 19.9975, lng: 73.7898 }, zoom = 12, onZoneClick, className }: CrowdMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MLMap | null>(null);
 

@@ -299,9 +299,38 @@ export interface WristbandProfile {
   age: number | null;
   guardianName: string;
   guardianPhone: string;
+  /** Free-text place name (e.g. a real Nashik landmark from NASHIK_LANDMARKS) — not a Zone foreign key, despite the field name. */
   meetingPointZoneId: string | null;
   medicalNotes: string | null;
   status: WristbandStatus;
+  createdAt: string;
+  dataSource: DataSource;
+}
+
+// Kumbh Homestays — a lightweight, in-app listings board for pilgrim
+// accommodation (homestays, guesthouses, dharamshalas, hotels, PGs) near
+// Nashik–Trimbakeshwar. No booking/payment flow — contact is a direct phone
+// call, same reasoning as the ID Wristband QR: works with zero network and
+// no third-party payment handling. A handful of seeded example listings
+// (dataSource SIMULATED) ship so the board isn't empty on day one; anything
+// a host adds through the app is dataSource USER_REPORTED.
+export type HomestayType = 'HOMESTAY' | 'GUESTHOUSE' | 'DHARAMSHALA' | 'HOTEL' | 'PG';
+
+export interface HomestayListing {
+  id: string;
+  name: string;
+  type: HomestayType;
+  area: string;
+  pricePerNightMin: number;
+  pricePerNightMax: number;
+  capacity: number;
+  contactName: string;
+  contactPhone: string;
+  amenities: string[];
+  /** Mandatory for new host-submitted listings (enforced in the form + API), nullable only because the seeded example listings predate this field. */
+  description: string | null;
+  /** A single resized photo of the property, as a data: URL — mandatory for new host-submitted listings. Never an ID document; see the Homestays page comment for why. */
+  photoDataUrl: string | null;
   createdAt: string;
   dataSource: DataSource;
 }

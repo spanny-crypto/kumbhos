@@ -127,7 +127,7 @@ const T = {
 export async function retrieveContext(question: string, data: RetrievalDataSource, near?: GeoPoint, lang: Lang = 'en'): Promise<RetrievalResult> {
   const topics: string[] = [];
   const lines: string[] = [];
-  const origin = near ?? { lat: 25.4305, lng: 81.8809 };
+  const origin = near ?? { lat: 19.9975, lng: 73.7898 }; // Nashik–Trimbakeshwar, matches seed/generate.ts CENTER
 
   if (matches(question, 'toilet')) {
     topics.push('toilet');

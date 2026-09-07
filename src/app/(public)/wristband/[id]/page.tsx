@@ -7,16 +7,15 @@ import { useParams } from 'next/navigation';
 import { AsyncState } from '@/components/common/AsyncState';
 import { useLanguage } from '@/components/layout/LanguageProvider';
 import { wristbandStatusLabels, tEnum } from '@/lib/i18n/enumLabels';
-import type { WristbandProfile, Zone } from '@/lib/data/types';
+import type { WristbandProfile } from '@/lib/data/types';
 
 // This is the page the QR code actually points to. Whoever found the person
 // wearing the band lands here — no login, no app, big tap-to-call button.
 export default function WristbandScanPage() {
   const params = useParams<{ id: string }>();
   const profileApi = useApi<WristbandProfile>(`/api/wristbands/${params.id}`);
-  const zonesApi = useApi<{ zone: Zone }[]>('/api/zones');
 
-  const zoneName = zonesApi.data?.find((z) => z.zone.id === profileApi.data?.meetingPointZoneId)?.zone.name ?? null;
+  const zoneName = profileApi.data?.meetingPointZoneId ?? null;
   const { t, lang } = useLanguage();
 
   return (

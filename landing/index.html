@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KumbhOS — Crowd &amp; Infrastructure Intelligence for Nashik Kumbh Mela</title>
+<meta name="description" content="KumbhOS helps pilgrims and staff navigate the Nashik–Trimbakeshwar Kumbh Mela safely: live crowd &amp; infrastructure maps, ID wristbands, emergency SOS, trip planning, and a Nashik heritage guide." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌊</text></svg>" />
+<style>
+  :root {
+    --bg: #fdfbf4;
+    --surface: #ffffff;
+    --text: #2a2622;
+    --muted: #6b6459;
+    --faint: #9a9284;
+    --border: #e8e1d3;
+    --brand-500: #7c5cff;
+    --brand-600: #6a46f5;
+    --brand-50: #f1edff;
+    --coral: #ff8a65;
+    --mint: #34d399;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+  .heading-serif { font-family: Georgia, 'Times New Roman', serif; }
+  a { color: inherit; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+  header.topbar {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px;
+    background: rgba(253,251,244,0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; }
+  .brand .logo {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: var(--brand-500); color: white;
+    display: flex; align-items: center; justify-content: center; font-size: 18px;
+  }
+  .topbar nav a { margin-left: 22px; font-size: 14px; font-weight: 600; color: var(--muted); text-decoration: none; }
+  .topbar nav a:hover { color: var(--text); }
+
+  .hero { position: relative; overflow: hidden; padding: 90px 0 70px; text-align: center; }
+  .hero::before, .hero::after {
+    content: ''; position: absolute; border-radius: 999px; filter: blur(70px); z-index: -1;
+  }
+  .hero::before { width: 380px; height: 380px; background: rgba(124,92,255,0.25); top: -120px; left: -100px; }
+  .hero::after { width: 320px; height: 320px; background: rgba(52,211,153,0.2); top: 40px; right: -80px; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--brand-50); color: var(--brand-600);
+    font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+    padding: 6px 14px; border-radius: 999px; margin-bottom: 22px;
+  }
+  .hero h1 { font-size: clamp(32px, 5vw, 56px); margin: 0 0 18px; line-height: 1.08; }
+  .hero p.lead { font-size: 18px; color: var(--muted); max-width: 620px; margin: 0 auto 34px; }
+
+  .download-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 24px; border-radius: 14px; font-weight: 700; font-size: 15px;
+    text-decoration: none; border: 1px solid transparent; transition: transform .15s ease, opacity .15s ease;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: var(--text); color: white; }
+  .btn-primary:hover { opacity: .9; }
+  .btn-secondary { background: var(--surface); color: var(--text); border-color: var(--border); }
+  .btn-secondary:hover { background: #f4f1e8; }
+  .btn small { display: block; font-weight: 500; opacity: .75; font-size: 11px; }
+  .btn-disabled { opacity: .55; cursor: not-allowed; }
+
+  .badge-note { margin-top: 14px; font-size: 12px; color: var(--faint); }
+
+  section.section { padding: 64px 0; }
+  .section-head { text-align: center; max-width: 640px; margin: 0 auto 40px; }
+  .section-head h2 { font-size: clamp(26px, 4vw, 34px); margin: 0 0 12px; }
+  .section-head p { color: var(--muted); margin: 0; }
+
+  .grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;
+  }
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 22px; text-align: left;
+  }
+  .card .emoji {
+    width: 46px; height: 46px; border-radius: 12px; background: var(--brand-50);
+    display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 14px;
+  }
+  .card h3 { font-size: 16px; margin: 0 0 6px; }
+  .card p { font-size: 13.5px; color: var(--muted); margin: 0; }
+
+  .cta-band {
+    background: var(--text); color: white; border-radius: 24px;
+    padding: 48px 32px; text-align: center; margin: 0 20px;
+  }
+  .cta-band h2 { margin: 0 0 12px; font-size: 28px; }
+  .cta-band p { color: rgba(255,255,255,0.7); margin: 0 0 26px; }
+  .cta-band .btn-primary { background: white; color: var(--text); }
+
+  footer { padding: 40px 20px 60px; text-align: center; color: var(--faint); font-size: 13px; }
+  footer .credit { margin-top: 6px; font-weight: 700; color: var(--muted); }
+  footer a { text-decoration: underline; }
+
+  @media (max-width: 640px) {
+    .topbar nav { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand"><span class="logo">🌊</span> KumbhOS</div>
+  <nav>
+    <a href="#features">Features</a>
+    <a href="#download">Download</a>
+    <a href="https://kumbhoz.netlify.app" target="_blank" rel="noopener">Open Web App</a>
+  </nav>
+</header>
+
+<section class="hero wrap">
+  <span class="eyebrow">🕉️ Nashik–Trimbakeshwar Kumbh Mela</span>
+  <h1 class="heading-serif">Crowd &amp; infrastructure<br />intelligence, in your pocket.</h1>
+  <p class="lead">
+    KumbhOS helps pilgrims stay safe and find their way around the Nashik Kumbh Mela — live infrastructure maps,
+    ID wristbands for kids &amp; elders, one-tap emergency SOS, a trip planner built on real ghat and hospital
+    locations, and a heritage guide to the city.
+  </p>
+
+  <div class="download-row" id="download">
+    <a class="btn btn-primary" href="downloads/KumbhOS.apk" download>
+      🤖
+      <span>
+        Download for Android
+        <small>Direct APK · works offline</small>
+      </span>
+    </a>
+    <a class="btn btn-secondary btn-disabled" href="#ios-note" aria-disabled="true">
+      🍎
+      <span>
+        Download for iOS
+        <small>Coming soon</small>
+      </span>
+    </a>
+  </div>
+  <p class="badge-note" id="ios-note">
+    Android app is a direct APK install (enable "install from unknown sources" if prompted). iOS packaging needs a
+    Mac build machine and isn't available yet — the <a href="https://kumbhoz.netlify.app" target="_blank" rel="noopener">web app</a>
+    works great on iPhone in the meantime.
+  </p>
+</section>
+
+<section class="section" id="features">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 class="heading-serif">What's inside</h2>
+      <p>Everything built for the scale of a Kumbh gathering — and honest about what's real data vs. a prototype.</p>
+    </div>
+    <div class="grid">
+      <div class="card"><div class="emoji">🗺️</div><h3>Nashik Infrastructure Map</h3><p>Real surveyed ghats, hospitals, fire stations, toilets, and parking across Nashik–Trimbakeshwar.</p></div>
+      <div class="card"><div class="emoji">🧭</div><h3>Trip Planner</h3><p>Find the nearest real facility to any landmark or your live location — not a synthetic demo.</p></div>
+      <div class="card"><div class="emoji">🆔</div><h3>ID Wristbands</h3><p>Printable QR wristbands for children &amp; elders — scan links straight to a guardian's phone number, no app needed.</p></div>
+      <div class="card"><div class="emoji">🚨</div><h3>Emergency SOS</h3><p>One-tap real emergency dial (police/ambulance) plus live location sharing.</p></div>
+      <div class="card"><div class="emoji">🛕</div><h3>Nashik Heritage Guide</h3><p>History and context on Trimbakeshwar, Ramkund, Panchavati, and more — for visitors who've never been.</p></div>
+      <div class="card"><div class="emoji">💰</div><h3>Fair Price Guide</h3><p>Typical local prices for food, transport, and essentials so out-of-town visitors don't get overcharged.</p></div>
+      <div class="card"><div class="emoji">🔍</div><h3>Lost &amp; Found</h3><p>Report and search for missing persons and items in one place.</p></div>
+      <div class="card"><div class="emoji">📡</div><h3>Live Billboard</h3><p>A simple, high-contrast running feed of the most important alerts, for anyone at a glance.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="cta-band">
+    <h2 class="heading-serif">Prefer not to install anything?</h2>
+    <p>The full app runs in your browser too — no download required.</p>
+    <a class="btn btn-primary" href="https://kumbhoz.netlify.app" target="_blank" rel="noopener">Open the Web App →</a>
+  </div>
+</section>
+
+<footer>
+  <p>KumbhOS is a hackathon prototype. Some data is simulated for demonstration — see the app's Data Sources page for what's real vs. synthetic.</p>
+  <p><a href="https://kumbhoz.netlify.app/privacy" target="_blank" rel="noopener">Privacy Policy</a></p>
+  <p class="credit">A SPANDAN PARAKH PRODUCTION</p>
+</footer>
+
+</body>
+</html>

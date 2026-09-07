@@ -20,3 +20,8 @@ mobile/android/app/build
 mobile/android/.gradle
 mobile/.netlify
 deno.lock
+
+# Built APK artifact bundled for direct download on the landing page —
+# binary build output, not source; rebuild via mobile/README instead of
+# tracking it in git history.
+landing/downloads/*.apk

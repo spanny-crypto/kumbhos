@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Globe, Navigation as NavigationIcon, ShieldAlert, Waves, Menu, X } from 'lucide-react';
@@ -9,21 +9,33 @@ import { useLocation } from './LocationProvider';
 import { SosModal } from '@/components/emergency/SosModal';
 import { LANG_LABELS, type DictionaryKey, type Lang } from '@/lib/i18n/dictionary';
 
-const NAV_ITEMS: { href: string; labelKey: DictionaryKey; emoji: string }[] = [
-  { href: '/', labelKey: 'navHome', emoji: '📊' },
-  { href: '/billboard', labelKey: 'navBillboard', emoji: '📡' },
-  { href: '/live-map', labelKey: 'navLiveMap', emoji: '🗺️' },
-  { href: '/crowd', labelKey: 'navCrowd', emoji: '👥' },
-  { href: '/navigation', labelKey: 'navNavigation', emoji: '🧭' },
-  { href: '/facilities', labelKey: 'navFacilities', emoji: '🏢' },
-  { href: '/water-quality', labelKey: 'navWaterQuality', emoji: '💧' },
-  { href: '/wristband', labelKey: 'navWristband', emoji: '🆔' },
-  { href: '/emergency', labelKey: 'navEmergency', emoji: '🚨' },
-  { href: '/lost-found', labelKey: 'navLostFound', emoji: '🔍' },
-  { href: '/events', labelKey: 'navEvents', emoji: '📅' },
-  { href: '/assistant', labelKey: 'navAssistant', emoji: '🤖' },
-  { href: '/data-sources', labelKey: 'navDataSources', emoji: '🗂️' }
+type NavGroup = 'overview' | 'explore' | 'safety' | 'info';
+
+const NAV_ITEMS: { href: string; labelKey: DictionaryKey; emoji: string; group: NavGroup }[] = [
+  { href: '/', labelKey: 'navHome', emoji: '📊', group: 'overview' },
+  { href: '/billboard', labelKey: 'navBillboard', emoji: '📡', group: 'overview' },
+  { href: '/events', labelKey: 'navEvents', emoji: '📅', group: 'overview' },
+  { href: '/live-map', labelKey: 'navLiveMap', emoji: '🗺️', group: 'explore' },
+  { href: '/eguide', labelKey: 'navEGuide', emoji: '🛕', group: 'explore' },
+  { href: '/market-prices', labelKey: 'navMarketPrices', emoji: '💰', group: 'explore' },
+  { href: '/navigation', labelKey: 'navNavigation', emoji: '🧭', group: 'explore' },
+  { href: '/homestays', labelKey: 'navHomestays', emoji: '🏠', group: 'explore' },
+  { href: '/crowd', labelKey: 'navCrowd', emoji: '👥', group: 'safety' },
+  { href: '/emergency', labelKey: 'navEmergency', emoji: '🚨', group: 'safety' },
+  { href: '/wristband', labelKey: 'navWristband', emoji: '🆔', group: 'safety' },
+  { href: '/lost-found', labelKey: 'navLostFound', emoji: '🔍', group: 'safety' },
+  { href: '/facilities', labelKey: 'navFacilities', emoji: '🏢', group: 'info' },
+  { href: '/water-quality', labelKey: 'navWaterQuality', emoji: '💧', group: 'info' },
+  { href: '/assistant', labelKey: 'navAssistant', emoji: '🤖', group: 'info' },
+  { href: '/data-sources', labelKey: 'navDataSources', emoji: '🗂️', group: 'info' }
 ];
+
+const NAV_GROUP_META: Record<NavGroup, { labelKey: DictionaryKey; tint: string }> = {
+  overview: { labelKey: 'navGroupOverview', tint: 'bg-brand-50 text-brand-700' },
+  explore: { labelKey: 'navGroupExplore', tint: 'bg-chip-mint/20 text-emerald-700' },
+  safety: { labelKey: 'navGroupSafety', tint: 'bg-risk-intervention/10 text-risk-intervention' },
+  info: { labelKey: 'navGroupInfo', tint: 'bg-chip-coral/15 text-orange-700' }
+};
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -34,6 +46,32 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [locationBannerDismissed, setLocationBannerDismissed] = useState(false);
   const [origin, setOrigin] = useState('');
   useEffect(() => setOrigin(window.location.origin), []);
+
+  // Auto-hide the header on scroll-down, reveal on scroll-up — the standard
+  // Material "top app bar" scroll pattern: it gives content more room on a
+  // long page without ever putting the header more than one upward swipe
+  // away. A small delta threshold avoids flicker from sub-pixel scroll
+  // jitter, and it always stays visible near the top of the page and
+  // whenever the mobile menu is open (sliding it away mid-interaction would
+  // take the open dropdown with it).
+  const [headerVisible, setHeaderVisible] = useState(true);
+  const lastScrollY = useRef(0);
+  useEffect(() => {
+    function onScroll() {
+      if (menuOpen) return;
+      const y = window.scrollY;
+      if (y < 64) {
+        setHeaderVisible(true);
+      } else if (y > lastScrollY.current + 8) {
+        setHeaderVisible(false);
+      } else if (y < lastScrollY.current - 8) {
+        setHeaderVisible(true);
+      }
+      lastScrollY.current = y;
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [menuOpen]);
 
   // A persisted browser-level "Block" is detectable via the Permissions API
   // even before the user clicks anything — surface it proactively instead
@@ -95,8 +133,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-paper-border bg-paper-surface/70 px-4 py-3 backdrop-blur-md backdrop-saturate-150">
+      <div className="relative flex min-w-0 flex-1 flex-col">
+        <header
+          className={`sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-paper-border bg-paper-surface/70 px-4 py-3 backdrop-blur-md backdrop-saturate-150 transition-transform duration-300 ease-out ${
+            headerVisible ? 'translate-y-0' : '-translate-y-full'
+          }`}
+        >
+          {/* `sticky` already establishes a positioning context, so the
+              menuOpen dropdown rendered as this header's child below can use
+              `absolute top-full` to mean "right below this header", not
+              "100% of the whole page height". */}
           <div className="flex items-center gap-2 md:hidden">
             <button onClick={() => setMenuOpen((v) => !v)} aria-label="Menu" className="rounded-lg p-1.5 text-paper-muted hover:bg-paper-bg">
               {menuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -161,7 +207,64 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               {t('sos')}
             </button>
           </div>
+
+          {/* Always rendered (not conditionally mounted) so the open/close
+              transition can actually animate both directions — grouped
+              icon-tile grid instead of a long flat list, since scanning 15
+              items is much faster in labelled clusters of 3-4 than in one
+              undifferentiated column. */}
+          <nav
+            aria-hidden={!menuOpen}
+            className={`scrollbar-thin absolute inset-x-0 top-full z-30 max-h-[75vh] overflow-y-auto rounded-b-2xl border-b border-paper-border bg-paper-surface p-4 shadow-xl transition-all duration-200 ease-out md:hidden ${
+              menuOpen ? 'translate-y-0 opacity-100' : 'pointer-events-none -translate-y-2 opacity-0'
+            }`}
+          >
+            {(Object.keys(NAV_GROUP_META) as NavGroup[]).map((group) => {
+              const meta = NAV_GROUP_META[group];
+              const items = NAV_ITEMS.filter((i) => i.group === group);
+              return (
+                <div key={group} className="mb-4 last:mb-0">
+                  <p className="mb-2 px-1 text-[11px] font-bold uppercase tracking-wide text-paper-faint">{t(meta.labelKey)}</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {items.map(({ href, labelKey, emoji }) => {
+                      const active = pathname === href;
+                      return (
+                        <Link
+                          key={href}
+                          href={href}
+                          onClick={() => setMenuOpen(false)}
+                          className={`flex flex-col items-center gap-1.5 rounded-xl px-2 py-3 text-center transition ${active ? 'bg-brand-500' : 'hover:bg-paper-bg'}`}
+                        >
+                          <span
+                            className={`flex h-10 w-10 items-center justify-center rounded-full text-lg ${active ? 'bg-white/20' : meta.tint}`}
+                            aria-hidden="true"
+                          >
+                            {emoji}
+                          </span>
+                          <span className={`text-[11px] font-medium leading-tight ${active ? 'text-white' : 'text-paper-text'}`}>{t(labelKey)}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </nav>
         </header>
+
+        {/* z-10, strictly below header's z-20 — the backdrop is a DOM
+            sibling of header, so at equal z-index it would paint on top of
+            header (later in DOM order) and silently swallow every tap
+            aimed at the menu tiles inside it, even though the tiles
+            themselves have z-30 (that only wins comparisons within
+            header's own stacking context, not against this sibling). */}
+        <div
+          className={`fixed inset-0 z-10 bg-black/30 backdrop-blur-[1px] transition-opacity duration-200 md:hidden ${
+            menuOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
+          }`}
+          onClick={() => setMenuOpen(false)}
+          aria-hidden="true"
+        />
 
         {locationHasProblem && !locationBannerDismissed && (
           <div className="flex flex-wrap items-start gap-2 border-b border-risk-critical/30 bg-risk-critical/5 px-4 py-2.5 text-xs text-paper-text">
@@ -213,27 +316,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <X size={14} />
             </button>
           </div>
-        )}
-
-        {menuOpen && (
-          <nav className="scrollbar-thin max-h-[70vh] overflow-y-auto border-b border-paper-border bg-paper-surface p-2 md:hidden">
-            {NAV_ITEMS.map(({ href, labelKey, emoji }) => {
-              const active = pathname === href;
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  onClick={() => setMenuOpen(false)}
-                  className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition ${
-                    active ? 'bg-brand-50 font-semibold text-brand-700' : 'text-paper-muted hover:bg-paper-bg'
-                  }`}
-                >
-                  <span className="text-base" aria-hidden="true">{emoji}</span>
-                  {t(labelKey)}
-                </Link>
-              );
-            })}
-          </nav>
         )}
 
         <main className="flex-1">{children}</main>

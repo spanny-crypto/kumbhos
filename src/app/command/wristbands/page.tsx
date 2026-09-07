@@ -6,7 +6,7 @@ import { AsyncState } from '@/components/common/AsyncState';
 import { WristbandCard } from '@/components/wristband/WristbandCard';
 import { fetchJSON, FetchClientError } from '@/lib/http/fetchClient';
 import { relativeTime, titleCase } from '@/lib/utils/format';
-import type { WristbandProfile, WristbandStatus, Zone } from '@/lib/data/types';
+import type { WristbandProfile, WristbandStatus } from '@/lib/data/types';
 
 const NEXT_STATUS: Record<WristbandStatus, WristbandStatus | null> = {
   ACTIVE: 'REUNITED',
@@ -16,7 +16,6 @@ const NEXT_STATUS: Record<WristbandStatus, WristbandStatus | null> = {
 
 export default function CommandWristbandsPage() {
   const api = useApi<WristbandProfile[]>('/api/wristbands', { pollMs: 20000 });
-  const zonesApi = useApi<{ zone: Zone }[]>('/api/zones');
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +49,7 @@ export default function CommandWristbandsPage() {
         <div className="mt-4 space-y-2">
           {(api.data ?? []).map((profile) => {
             const next = NEXT_STATUS[profile.status];
-            const zoneName = zonesApi.data?.find((z) => z.zone.id === profile.meetingPointZoneId)?.zone.name ?? null;
+            const zoneName = profile.meetingPointZoneId;
             const expanded = expandedId === profile.id;
             return (
               <div key={profile.id} className="card p-4">

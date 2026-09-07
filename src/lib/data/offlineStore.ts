@@ -17,6 +17,7 @@ import {
   generateDataSources,
   generateEvents,
   generateFacilities,
+  generateHomestayListings,
   generateIncidents,
   generateInfrastructure,
   generateLostFoundCases,
@@ -32,7 +33,7 @@ import { generateResponseTeams } from './seed/generate';
 import { retrieveContext } from '@/lib/ai/retrieval';
 import { FallbackAIProvider } from '@/lib/ai/fallbackProvider';
 import { generateShortCode } from '@/lib/utils/id';
-import type { AssetStatus, IncidentSeverity, InfrastructureAsset, LostFoundCase, RiskLevel, Toilet, WristbandProfile, WristbandStatus } from './types';
+import type { AssetStatus, HomestayListing, IncidentSeverity, InfrastructureAsset, LostFoundCase, RiskLevel, Toilet, WristbandProfile, WristbandStatus } from './types';
 import type { BillboardEntry, BillboardSeverity } from './billboardTypes';
 import type { Lang } from '@/lib/i18n/dictionary';
 
@@ -55,6 +56,7 @@ function buildSnapshot() {
   const announcements = generateAnnouncements();
   const dataSources = generateDataSources();
   const waterQuality = generateWaterQualityRecords();
+  const homestays = generateHomestayListings();
 
   const zonesWithPressure = zones.map((zone) => ({ zone, pressure: computeCrowdPressure(zone) }));
 
@@ -82,7 +84,8 @@ function buildSnapshot() {
     events,
     announcements,
     dataSources,
-    waterQuality
+    waterQuality,
+    homestays
   };
 }
 
@@ -262,6 +265,29 @@ function saveOfflineLostFoundCase(entry: LostFoundCase): void {
   }
 }
 
+// Homestay listings a host adds on-device — same "read-write local, seed
+// data read-only" split as wristbands and Lost & Found above.
+const HOMESTAY_STORAGE_KEY = 'kumbhos-offline-homestays';
+
+function readStoredHomestays(): HomestayListing[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(HOMESTAY_STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as HomestayListing[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveOfflineHomestay(entry: HomestayListing): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(HOMESTAY_STORAGE_KEY, JSON.stringify([entry, ...readStoredHomestays()]));
+  } catch {
+    // Non-fatal — the listing still shows for this session's list render.
+  }
+}
+
 // The AI Assistant's retrieval step only ever reads a handful of collections
 // (see RetrievalDataSource in lib/ai/retrieval.ts) — this satisfies exactly
 // that shape over the local snapshot, so the same grounded-answer logic used
@@ -313,6 +339,8 @@ export function resolveOffline(url: string): unknown | undefined {
       return buildBillboard();
     case '/api/wristbands':
       return readStoredWristbands();
+    case '/api/homestays':
+      return [...readStoredHomestays(), ...snapshot.homestays];
     default:
       break;
   }
@@ -370,6 +398,30 @@ export async function resolveOfflineMutation(url: string, method: string, bodyTe
     const updated = updateOfflineWristbandStatus(wristbandStatusMatch[1]!, body.status as WristbandStatus);
     if (!updated) throw new Error('That wristband could not be found.');
     return updated;
+  }
+
+  if (path === '/api/homestays' && method === 'POST') {
+    if (!body.name || !body.area || !body.contactName || !body.contactPhone || !body.description || !body.photoDataUrl) {
+      throw new Error('name, area, contactName, contactPhone, description, and a property photo are required.');
+    }
+    const listing: HomestayListing = {
+      id: `homestay-${generateShortCode()}`,
+      name: body.name as string,
+      type: (body.type as HomestayListing['type']) ?? 'HOMESTAY',
+      area: body.area as string,
+      pricePerNightMin: Number(body.pricePerNightMin) || 0,
+      pricePerNightMax: Number(body.pricePerNightMax) || 0,
+      capacity: Number(body.capacity) || 1,
+      contactName: body.contactName as string,
+      contactPhone: body.contactPhone as string,
+      amenities: Array.isArray(body.amenities) ? (body.amenities as string[]) : [],
+      description: body.description as string,
+      photoDataUrl: body.photoDataUrl as string,
+      createdAt: new Date().toISOString(),
+      dataSource: 'USER_REPORTED'
+    };
+    saveOfflineHomestay(listing);
+    return listing;
   }
 
   if (path === '/api/lost-found' && method === 'POST') {

@@ -7,7 +7,7 @@ import { formatDistance, nearest } from '@/lib/utils/geo';
 import type { Facility, Zone } from '@/lib/data/types';
 import type { DictionaryKey } from '@/lib/i18n/dictionary';
 
-const CENTER = { lat: 25.4305, lng: 81.8809 };
+const CENTER = { lat: 19.9975, lng: 73.7898 }; // Nashik–Trimbakeshwar, matches seed/generate.ts
 const CATEGORIES: { category: Facility['category']; labelKey: DictionaryKey }[] = [
   { category: 'MEDICAL', labelKey: 'emgNearestMedical' },
   { category: 'POLICE', labelKey: 'emgNearestPolice' },
